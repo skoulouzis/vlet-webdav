@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>nl.uva.vlet</groupId>
+    <artifactId>vlet-vfs.webdav</artifactId>
+    <version>2.0</version>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+                <version>2.4</version>
+            </plugin> 
+            
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <version>2.1.2</version>
+            </plugin>
+        </plugins>   
+    </build>
+    
+    <dependencies>
+        
+        
+         
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-vrs.core</artifactId>
+            <version>1.5.0-dev-1</version>
+        </dependency>
+
+        
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-vfs.gftp</artifactId>
+            <version>1.5.0-dev-1</version>
+            <scope>runtime</scope>
+        </dependency>       
+        
+        
+        <dependency>
+            <groupId>com.claymoresystems</groupId>
+            <artifactId>puretls</artifactId>
+            <version>0.1</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+
+        <dependency>
+            <groupId>cryptix</groupId>
+            <artifactId>cryptix-asn1</artifactId>
+            <version>1.0</version>
+            <scope>runtime</scope>
+        </dependency>
+                
+        <dependency>
+            <groupId>cryptix</groupId>
+            <artifactId>cryptix32</artifactId>
+            <version>3.2.0</version>
+            <scope>runtime</scope>
+        </dependency>
+                
+                
+        <dependency>
+            <groupId>cryptix</groupId>
+            <artifactId>cryptix</artifactId>
+            <version>1.0</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-grid.globus</artifactId>
+            <version>1.5.0-dev-1</version>
+            <scope>runtime</scope>
+        </dependency>  
+        
+        
+        <dependency>
+            <groupId>org.globus</groupId>
+            <artifactId>cog-jglobus</artifactId>
+            <version>1.4</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.globus</groupId>
+            <artifactId>cog-url</artifactId>
+            <version>1.4</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>jce-jdk13</artifactId>
+            <version>131</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>1.43</version>
+            <scope>runtime</scope>
+        </dependency>
+            
+                
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-vfs.srm</artifactId>
+            <version>1.5.0-dev-1</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-vfs.lfc</artifactId>
+            <version>1.5.0-dev-1</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>nl.uva.vlet</groupId>
+            <artifactId>vlet-vfs.jcraft.ssh</artifactId>
+            <version>1.5.0-dev-1</version>
+            <scope>runtime</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-webdav</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>apache-slide</groupId>
+            <artifactId>jakarta-slide-webdavlib</artifactId>
+            <version>2.1-brew</version>
+        </dependency>
+        
+        
+        <dependency>
+            <groupId>org.kuali.rice</groupId>
+            <artifactId>rice-ksb-client-impl</artifactId>
+            <version>2.1.0-M2</version>
+        </dependency>
+        
+    </dependencies>
+
+
+
+
+    <repositories>
+        <repository>
+            <id>elab.lab.uvalight.net</id>
+            <name>elab.lab.uvalight.net-releases</name>
+            <url>http://elab.lab.uvalight.net/artifactory/repo</url>
+        </repository>
+    </repositories>
+    
+    
+    
+    <distributionManagement>
+        <repository>
+            <id>elab.lab.uvalight.net</id>
+            <name>elab.lab.uvalight.net-releases</name>
+            <url>http://elab.lab.uvalight.net/artifactory/ext-release-local</url>
+        </repository>
+    </distributionManagement>
+</project>
