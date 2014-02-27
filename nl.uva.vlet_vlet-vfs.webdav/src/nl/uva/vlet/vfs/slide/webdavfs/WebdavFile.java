@@ -27,7 +27,7 @@ public class WebdavFile extends VFile
     static
     {
         logger = ClassLogger.getLogger(WebdavFile.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
 
     // === Instance === 

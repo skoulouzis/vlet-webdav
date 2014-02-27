@@ -28,7 +28,7 @@ public class WebdavDir extends VDir
     static
     {
         logger = ClassLogger.getLogger(WebdavDir.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
 
     // === instance === 

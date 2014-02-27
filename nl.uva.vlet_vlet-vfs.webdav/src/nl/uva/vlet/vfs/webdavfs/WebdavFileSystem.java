@@ -82,7 +82,7 @@ public class WebdavFileSystem extends FileSystemNode {
 
     static {
         logger = ClassLogger.getLogger(WebdavFileSystem.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
     // ==== instance === 
     private boolean connected;

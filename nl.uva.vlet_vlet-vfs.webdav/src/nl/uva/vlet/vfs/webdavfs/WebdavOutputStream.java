@@ -13,43 +13,35 @@ import nl.uva.vlet.vrl.VRL;
 
 /**
  * OutputStream for changing files on webdav servers.
- * 
+ *
  * @author S. koulouzis
- * 
+ *
  */
-public class WebdavOutputStream extends OutputStream
-{
+public class WebdavOutputStream extends OutputStream {
+
     private static ClassLogger logger;
 
-    static
-    {
+    static {
         logger = ClassLogger.getLogger(WebdavOutputStream.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
-    
     // === Instance === 
-    
     private WebdavFileSystem webdavfs;
-
     private VRL tmpDir;
-
     private OutputStream localOS;
-
     private VFile localFile;
-
     private WebdavFile remoteFile;
 
     /**
      * Creates an instance of an OutputStream. On creation a temporary local
      * file is crated, and its OutputStream is used. On closing this stream the
      * file uploaded to the server and the temporary file deleted.
-     * 
+     *
      * @param webdavFileSystem
      * @param remoteFile
      * @throws VlException
      */
-    public WebdavOutputStream(WebdavFileSystem webdavFileSystem, WebdavFile remoteFile) throws VlException
-    {
+    public WebdavOutputStream(WebdavFileSystem webdavFileSystem, WebdavFile remoteFile) throws VlException {
         this.webdavfs = webdavFileSystem;
 
         tmpDir = GlobalConfig.getDefaultTempDir();
@@ -73,45 +65,36 @@ public class WebdavOutputStream extends OutputStream
     }
 
     @Override
-    public void write(int b) throws IOException
-    {
+    public void write(int b) throws IOException {
         localOS.write(b);
     }
 
     @Override
-    public void write(byte b[], int off, int len) throws IOException
-    {
+    public void write(byte b[], int off, int len) throws IOException {
         localOS.write(b, off, len);
     }
 
     @Override
-    public void write(byte b[]) throws IOException
-    {
+    public void write(byte b[]) throws IOException {
         localOS.write(b);
     }
 
     @Override
-    public void flush() throws IOException
-    {
+    public void flush() throws IOException {
         localOS.flush();
     }
 
     @Override
-    public void close() throws IOException
-    {
+    public void close() throws IOException {
         localOS.close();
 
-        try
-        {
+        try {
             webdavfs.upload(localFile.getVRL(), remoteFile.getVRL());
 
             localFile.delete();
-        }
-        catch (VlException e)
-        {
+        } catch (VlException e) {
             throw new IOException(e);
         }
 
     }
-
 }

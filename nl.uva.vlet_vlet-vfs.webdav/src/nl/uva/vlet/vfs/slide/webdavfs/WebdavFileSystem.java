@@ -37,7 +37,7 @@ public class WebdavFileSystem extends FileSystemNode
     static
     {
         logger = ClassLogger.getLogger(WebdavFileSystem.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
 
     public WebdavFileSystem(VRSContext context, ServerInfo info,VRL vrl)
