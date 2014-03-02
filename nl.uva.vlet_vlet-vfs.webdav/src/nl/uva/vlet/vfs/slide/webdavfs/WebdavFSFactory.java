@@ -17,7 +17,7 @@ import nl.uva.vlet.vrs.VRSContext;
  */
 public class WebdavFSFactory extends VFSFactory
 {
-    public static final String[] schemes = { "webdavSlide" };
+    public static final String[] schemes = { "webdavSlide","webdavsSlide" };
 
 //    @Override
 //    public VFileSystem getFileSystem(VRSContext context, VRL location) throws VlException

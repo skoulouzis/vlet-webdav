@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import nl.uva.vlet.ClassLogger;
 import nl.uva.vlet.Global;
@@ -101,6 +103,7 @@ public class WebdavFileSystem extends FileSystemNode {
      * @param location
      */
     public WebdavFileSystem(VRSContext context, ServerInfo info, VRL location) {
+
         super(context, info);
         if (location.getScheme().equals("webdavs")) {
             useSSL = true;
@@ -114,6 +117,7 @@ public class WebdavFileSystem extends FileSystemNode {
                 new EasySSLProtocolSocketFactory();
         Protocol https = new Protocol("https", socketFactory, port);
         Protocol.registerProtocol("https", https);
+        setRoot(location, info);
     }
 
     @Override
@@ -923,5 +927,38 @@ public class WebdavFileSystem extends FileSystemNode {
             connect();
         }
         return client;
+    }
+
+    private void setRoot(VRL location, ServerInfo info) {
+        String[] elements = location.getPathElements();
+        VRL root = info.getRootPath();
+        System.err.println("Root: " + root);
+        boolean exists = false;
+        try {
+            ArrayList<VFSNode> result = propFind(root, DavConstants.PROPFIND_PROPERTY_NAMES,
+                    DavConstants.DEPTH_0);
+            exists = (result != null && !result.isEmpty());
+        } catch (VlException ex) {
+            exists = false;
+        }
+
+        if (!exists) {
+            for (String v : elements) {
+                root = root.append(v);
+                System.err.println("Root: " + root);
+                try {
+                    ArrayList<VFSNode> result = propFind(root, DavConstants.PROPFIND_PROPERTY_NAMES,
+                            DavConstants.DEPTH_0);
+                    exists = (result != null && !result.isEmpty());
+                } catch (VlException ex) {
+                    exists = false;
+                }
+                if (exists) {
+                    break;
+                }
+            }
+        }
+        info.setRootPath(root.getPath());
+        info.store();
     }
 }
