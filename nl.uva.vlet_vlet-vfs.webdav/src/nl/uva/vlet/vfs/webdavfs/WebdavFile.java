@@ -96,9 +96,13 @@ public class WebdavFile extends VFile {
         boolean exists = (result != null && !result.isEmpty());
 
         if (exists) {
-
-            WebdavFile file = (WebdavFile) result.get(0);
-            this._davProps = file._davProps;
+            VFSNode node = result.get(0);
+            if (node instanceof WebdavFile) {
+                WebdavFile file = (WebdavFile) result.get(0);
+                this._davProps = file._davProps;
+            } else {
+                return false;
+            }
         }
 
         return exists;

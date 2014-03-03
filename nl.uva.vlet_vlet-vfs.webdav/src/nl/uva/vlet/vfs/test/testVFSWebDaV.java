@@ -57,6 +57,11 @@ public class testVFSWebDaV extends testVFS {
         return testLoc;
     }
 
+    @Override
+    protected boolean getTestDoBigTests() {
+        return false;
+    }
+
     public static Test suite() throws VlException, FileNotFoundException,
             IOException {
         try {
@@ -71,7 +76,7 @@ public class testVFSWebDaV extends testVFS {
 
         info.setUsername("USER");
 
-        info.setPassword("PASSWORD");
+        info.setPassword("PASS");
 
         info.store();
 

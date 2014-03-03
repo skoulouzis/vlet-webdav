@@ -26,7 +26,7 @@ public class TestWebDavFS {
 
     static {
         logger = ClassLogger.getLogger(TestWebDavFS.class);
-        logger.setLevelToDebug();
+        logger.setLevelToError();
     }
     private static final String TEST_CONTENTS = ">>> This is a testfile used for the VFS unit tests  <<<\n"
             + "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n" + "0123456789@#$%*()_+\n"

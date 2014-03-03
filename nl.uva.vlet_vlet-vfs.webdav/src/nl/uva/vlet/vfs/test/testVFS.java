@@ -107,7 +107,7 @@ public class testVFS extends VTestCase {
     private VRL localTempDirVrl = TestSettings.getTestLocation(TestSettings.VFS_LOCAL_TEMPDIR_LOCATION);
     private VRL remoteTestDirVrl = null;
     private int uniquepathnr = 0;
-    private Object uniquepathnrMutex = new Object();
+    private final Object uniquepathnrMutex = new Object();
 
     /**
      * Return path with incremental number to make sure each new file did exist
@@ -134,7 +134,7 @@ public class testVFS extends VTestCase {
     public void setRemoteLocation(VRL remoteLocation) {
         this.remoteTestDirVrl = remoteLocation;
     }
-    private Object setupMutex = new Object();
+    private final Object setupMutex = new Object();
     private VRL otherRemoteLocation = null;
     private boolean testEncodedPaths = true;
     private boolean testStrangeChars = true;
@@ -144,6 +144,7 @@ public class testVFS extends VTestCase {
      *
      * @throws VlException
      */
+    @Override
     protected void setUp() throws VlException {
         verbose(3, "setUp(): Checking remote test location:"
                 + getRemoteLocation());
@@ -270,6 +271,7 @@ public class testVFS extends VTestCase {
      * return an ResourceNotFound exception when the resource doesn't exist.
      */
     public void testExists() throws VlException {
+        verbose(1, "testExists");
         boolean result = getRemoteTestDir().existsFile(
                 "ThisFileShouldnotexist_1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         Assert.assertFalse("Exists(): file should not exist!", result);
@@ -295,6 +297,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testRootExists() throws VlException {
+        verbose(1, "testRootExists");
         VRL rootPath = null;
         ServerInfo inf = this.getServerInfo();
         // Use "/" or explicit rootPath
@@ -318,6 +321,7 @@ public class testVFS extends VTestCase {
      * location and 'exists()'.
      */
     public void testTildeExpansion() throws VlException {
+        verbose(1, "testTildeExpansion");
         VFSNode node = getRemoteTestDir().getPath("/~");
         Assert.assertTrue(
                 "Default HOME reports is does not exist (SRB might do this):'/~' => '"
@@ -510,7 +514,7 @@ public class testVFS extends VTestCase {
             message("***Warning: Skipping test:testCreateDeleteFileWithSpaceAndListParentDir");
             return;
         }
-
+        verbose(1, "testCreateDeleteFileWithSpaceAndListParentDir");
         VFile newFile = getRemoteTestDir().createFile(
                 nextFilename("test File E"));
 
@@ -530,6 +534,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testCreateAndIgnoreExistingFile() throws VlException {
+        verbose(1, "testCreateAndIgnoreExistingFile");
         VFile newFile = getRemoteTestDir().createFile(nextFilename("testFileF"));
 
         // current default implemenation is to ignore existing files!
@@ -542,6 +547,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testFileAttributes() throws VlException {
+        verbose(1, "testFileAttributes");
         VFile newFile = getRemoteTestDir().newFile(nextFilename("testFileAttr"));
 
         testVFSNodeAttributes(newFile);
@@ -559,7 +565,7 @@ public class testVFS extends VTestCase {
      * Test Attribute interface with matching methods !
      */
     private void testVFSNodeAttributes(VFSNode newFile) throws VlException {
-
+        verbose(1, "testVFSNodeAttributes");
         Assert.assertEquals(
                 "Both getType() and getAttribute(ATTR_TYPE) must return same value",
                 newFile.getType(), newFile.getAttribute(ATTR_TYPE).getValue());
@@ -703,6 +709,7 @@ public class testVFS extends VTestCase {
      * @throws VlException
      */
     public void testFSCreateAndDeleteDir() throws VlException {
+        verbose(1, "testFSCreateAndDeleteDir");
         VRL fullPath = getRemoteTestDir().resolvePathVRL(
                 nextFilename("testFSDirE"));
         VFileSystem fs = getRemoteTestDir().getFileSystem();
@@ -728,7 +735,7 @@ public class testVFS extends VTestCase {
             message("***Warning: Skipping test:testCreateAndDeleteDirWithSpace");
             return;
         }
-
+        verbose(1, "testCreateAndDeleteDirWithSpace");
         VDir newDir = getRemoteTestDir().createDir("test Dir F");
 
         newDir.delete();
@@ -754,125 +761,127 @@ public class testVFS extends VTestCase {
 
     public void testCreateAndRenameDir() throws VlException {
         // must create a d
-//        String newDirName = "renamedTestDirG";
-//
-//        VDir newDir = getRemoteTestDir().createDir("testDirH");
-//
-//        if (getTestRenames() == true) {
-//            boolean result = newDir.renameTo(newDirName, false);
-//
-//            Assert.assertEquals("Rename must return true", true, result);
-//
-//            result = getRemoteTestDir().existsDir(newDirName);
-//            Assert.assertEquals("New VDir doesn't exist:" + newDirName, true,
-//                    result);
-//
-//            VDir renamedDir = getRemoteTestDir().getDir(newDirName);
-//            Assert.assertNotNull(
-//                    "After rename, new VDir is NULL:" + newDirName, renamedDir);
-//
-//            // cleanup:
-//            renamedDir.delete();
-//        } else {
-//            newDir.delete();
-//        }
+        verbose(1, "testCreateAndRenameDir");
+        String newDirName = "renamedTestDirG";
+
+        VDir newDir = getRemoteTestDir().createDir("testDirH");
+
+        if (getTestRenames() == true) {
+            boolean result = newDir.renameTo(newDirName, false);
+
+            Assert.assertEquals("Rename must return true", true, result);
+
+            result = getRemoteTestDir().existsDir(newDirName);
+            Assert.assertEquals("New VDir doesn't exist:" + newDirName, true,
+                    result);
+
+            VDir renamedDir = getRemoteTestDir().getDir(newDirName);
+            Assert.assertNotNull(
+                    "After rename, new VDir is NULL:" + newDirName, renamedDir);
+
+            // cleanup:
+            renamedDir.delete();
+        } else {
+            newDir.delete();
+        }
     }
 
     public void testCreateAndRenameFile() throws VlException {
-//        if (getTestRenames() == false) {
-//            message("Skipping rename test");
-//            return;
-//        }
-//
-//        String newFileName = "newFileName6";
-//
-//        VFile newFile = getRemoteTestDir().createFile(nextFilename("testFileH"));
-//
-//        {
-//            boolean result = newFile.renameTo(newFileName, false);
-//
-//            Assert.assertEquals("Rename should return true", true, result);
-//
-//            result = getRemoteTestDir().existsFile(newFileName);
-//            Assert.assertEquals("new File should exist:" + newFileName, true,
-//                    result);
-//
-//            VFile renamedFile = getRemoteTestDir().getFile(newFileName);
-//            Assert.assertNotNull("new VDir is NULL", renamedFile);
-//
-//            // cleanup:
-//            renamedFile.delete();
-//        }
+        if (getTestRenames() == false) {
+            message("Skipping rename test");
+            return;
+        }
+        verbose(1, "testCreateAndRenameFile");
+        String newFileName = "newFileName6";
+
+        VFile newFile = getRemoteTestDir().createFile(nextFilename("testFileH"));
+
+        {
+            boolean result = newFile.renameTo(newFileName, false);
+
+            Assert.assertEquals("Rename should return true", true, result);
+
+            result = getRemoteTestDir().existsFile(newFileName);
+            Assert.assertEquals("new File should exist:" + newFileName, true,
+                    result);
+
+            VFile renamedFile = getRemoteTestDir().getFile(newFileName);
+            Assert.assertNotNull("new VDir is NULL", renamedFile);
+
+            // cleanup:
+            renamedFile.delete();
+        }
     }
 
     public void testRenameWithSpaces() throws VlException {
-//        if (getTestRenames() == false) {
-//            message("Skipping rename test");
-//            return;
-//        }
-//
-//        if (getTestStrangeCharsInPaths() == false) {
-//            message("Skipping rename with spaces test");
-//            return;
-//        }
-//
-//        VDir parentDir = getRemoteTestDir();
-//
-//        // postfix space
-//
-//        String orgFileName = nextFilename("spaceRenameFile1");
-//        String newFileName = orgFileName + " ";
-//
-//        testRename(parentDir, orgFileName, newFileName);
-//
-//        // prefix space
-//        orgFileName = nextFilename("spaceRenameFile2");
-//        newFileName = " " + orgFileName + " ";
-//
-//        // infix space
-//        testRename(parentDir, orgFileName, newFileName);
-//        orgFileName = "infixSpaceRenameTest000";
-//        newFileName = "infixSpace RenameTest000";
-//
-//        testRename(parentDir, orgFileName, newFileName);
+        verbose(1, "testRenameWithSpaces");
+        if (getTestRenames() == false) {
+            message("Skipping rename test");
+            return;
+        }
+
+        if (getTestStrangeCharsInPaths() == false) {
+            message("Skipping rename with spaces test");
+            return;
+        }
+
+        VDir parentDir = getRemoteTestDir();
+
+        // postfix space
+
+        String orgFileName = nextFilename("spaceRenameFile1");
+        String newFileName = orgFileName + " ";
+
+        testRename(parentDir, orgFileName, newFileName);
+
+        // prefix space
+        orgFileName = nextFilename("spaceRenameFile2");
+        newFileName = " " + orgFileName + " ";
+
+        // infix space
+        testRename(parentDir, orgFileName, newFileName);
+        orgFileName = "infixSpaceRenameTest000";
+        newFileName = "infixSpace RenameTest000";
+
+        testRename(parentDir, orgFileName, newFileName);
     }
 
     private void testRename(VDir parentDir, String orgFileName,
             String newFileName) throws VlException {
-//        VFile orgFile = parentDir.createFile(orgFileName);
-//
-//        message("Rename: '" + orgFileName + "' to '" + newFileName + "'");
-//        message("Rename:  - orgfile='" + orgFile + "'");
-//
-//        boolean result = getRemoteTestDir().existsFile(newFileName);
-//        Assert.assertFalse(
-//                "Remote file system claims new file already exists!:'"
-//                + newFileName + "'", result);
-//
-//        result = orgFile.renameTo(newFileName, false);
-//        Assert.assertEquals("Rename should return true", true, result);
-//
-//        result = getRemoteTestDir().existsFile(newFileName);
-//        Assert.assertTrue("new File should exist:" + newFileName, result);
-//
-//        VFile renamedFile = getRemoteTestDir().getFile(newFileName);
-//        message("Rename:  - renamefile='" + renamedFile + "'");
-//
-//        Assert.assertNotNull("getFile() of renamed file returned NULL",
-//                renamedFile);
-//        Assert.assertTrue("New file must exist after rename!",
-//                renamedFile.exists());
-//
-//        // rename back
-//        result = renamedFile.renameTo(orgFileName, false);
-//        Assert.assertEquals("Rename should return true", true, result);
-//        VFile rerenamedFile = getRemoteTestDir().getFile(orgFileName);
-//        Assert.assertNotNull("getFile() of reerenamed file return NULL",
-//                rerenamedFile);
-//        Assert.assertTrue("Original file must exist after double rename!",
-//                rerenamedFile.exists());
-//
-//        rerenamedFile.delete();
+        VFile orgFile = parentDir.createFile(orgFileName);
+
+        message("Rename: '" + orgFileName + "' to '" + newFileName + "'");
+        message("Rename:  - orgfile='" + orgFile + "'");
+
+        boolean result = getRemoteTestDir().existsFile(newFileName);
+        Assert.assertFalse(
+                "Remote file system claims new file already exists!:'"
+                + newFileName + "'", result);
+
+        result = orgFile.renameTo(newFileName, false);
+        Assert.assertEquals("Rename should return true", true, result);
+
+        result = getRemoteTestDir().existsFile(newFileName);
+        Assert.assertTrue("new File should exist:" + newFileName, result);
+
+        VFile renamedFile = getRemoteTestDir().getFile(newFileName);
+        message("Rename:  - renamefile='" + renamedFile + "'");
+
+        Assert.assertNotNull("getFile() of renamed file returned NULL",
+                renamedFile);
+        Assert.assertTrue("New file must exist after rename!",
+                renamedFile.exists());
+
+        // rename back
+        result = renamedFile.renameTo(orgFileName, false);
+        Assert.assertEquals("Rename should return true", true, result);
+        VFile rerenamedFile = getRemoteTestDir().getFile(orgFileName);
+        Assert.assertNotNull("getFile() of reerenamed file return NULL",
+                rerenamedFile);
+        Assert.assertTrue("Original file must exist after double rename!",
+                rerenamedFile.exists());
+
+        rerenamedFile.delete();
     }
 
     /**
@@ -881,6 +890,7 @@ public class testVFS extends VTestCase {
      * @throws VlException
      */
     public void testCopyEmptyDir() throws VlException {
+        verbose(1, "testCopyEmptyDir");
         VRL sourcePath = getRemoteTestDir().resolvePathVRL(
                 nextFilename("testFSDirEmpty_original"));
         VFileSystem fs = getRemoteTestDir().getFileSystem();
@@ -916,13 +926,15 @@ public class testVFS extends VTestCase {
      * file with same name already exists
      */
     public void testCreateDirPermissionDenied() throws VlException {
+        verbose(1, "testCreateDirPermissionDenied");
         try {
             VDir root = getRemoteTestDir().getRoot();
             // "/test" is illegal under linux
-            if (Global.isLinux() == true) {
+            if (Global.isLinux() == true && !root.getVRL().toString().contains("owncloud")) {
                 if (root.isWritable() == false) {
                     VDir newDir = root.createDir(nextFilename("testI"));
 
+                    //If used with ownCloud we can't check that. The root is also home 
                     fail("Should raise Exception:"
                             + ResourceWriteAccessDeniedException.class);
                 }
@@ -938,6 +950,7 @@ public class testVFS extends VTestCase {
         {
             Global.debugPrintln(this, "Caught expected Exception:" + e);
             Global.debugPrintStacktrace(e);
+            e.printStackTrace();
         }
     }
 
@@ -945,6 +958,7 @@ public class testVFS extends VTestCase {
     // VDir.list() filter tests
     // =======================================================================
     public void testListDirFiltered() throws VlException {
+        verbose(1, "testListDirFiltered");
         VDir ldir = getRemoteTestDir().createDir("dirListTest");
 
         // list EMPTY dir:
@@ -1001,6 +1015,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testListDirIterator() throws VlException {
+        verbose(1, "testListDirIterator");
         VDir ldir = getRemoteTestDir().createDir("dirListTest2");
         String fileName0 = "file0";
         String fileName1 = "file1";
@@ -1102,6 +1117,7 @@ public class testVFS extends VTestCase {
     // Other
     // =======================================================================
     public void testACLs() throws VlException {
+        verbose(1, "testACLs");
         VDir dir = this.getRemoteTestDir();
 
         // VFSNode read returns readonly ACL, so is never NULL, unless
@@ -1142,6 +1158,7 @@ public class testVFS extends VTestCase {
     // Logical File Alias and Links:
     // =======================================================================
     public void testAlias() throws VlException {
+        verbose(1, "testAlias");
         VFile orgFile = getRemoteTestDir().createFile("testLinkFileOriginal-1",
                 true);
         String link1name = "testLinkto-1";
@@ -1243,6 +1260,7 @@ public class testVFS extends VTestCase {
         if (getTestWriteTests() == false) {
             return;
         }
+        verbose(1, "testSetGetSimpleContentsNewFile");
 
         // test1: small string
         VFileSystem fs = getRemoteTestDir().getFileSystem();
@@ -1299,7 +1317,7 @@ public class testVFS extends VTestCase {
         if (getTestWriteTests() == false) {
             return;
         }
-
+        verbose(1, "testSetGetSimpleContentsExistingFile");
         // create existing file first:
         VFile newFile = getRemoteTestDir().createFile("testFile7b");
         newFile.setContents(TEST_CONTENTS);
@@ -1349,7 +1367,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testCopyMoveToRemote(boolean isMove) throws VlException {
-
+        verbose(1, "testCopyMoveToRemote");
         VFile localFile = null;
         VFile remoteFile = null;
 
@@ -1386,7 +1404,7 @@ public class testVFS extends VTestCase {
         if (getTestDoBigTests() == false) {
             return;
         }
-
+        verbose(1, "testMove10MBForthAndBack");
         VFile localFile = null;
         VFile remoteFile = null;
 
@@ -1471,6 +1489,7 @@ public class testVFS extends VTestCase {
         if (getTestDoBigTests() == false) {
             return;
         }
+        verbose(1, "testStreamRead");
 
         VFile localFile = null;
         VFile remoteFile = null;
@@ -1557,21 +1576,22 @@ public class testVFS extends VTestCase {
         if (getTestDoBigTests() == false) {
             return;
         }
-
+        verbose(1, "testStreamWrite");
         VFile localFile = null;
         VFile remoteFile = null;
 
         {
             remoteFile = getRemoteTestDir().createFile("test10MBstreamWrite");
 
-            int len = 10 * 1024 * 1024;
+            int len = 5 * 1024 * 1024;
 
             // fixed seed for reproducable tests
             Random generator = new Random(13);
 
             byte buffer[] = new byte[len];
+            verbose(1, "testStreamWrite generate random");
             generator.nextBytes(buffer);
-
+            verbose(1, "testStreamWrite start");
             long read_start_time = System.currentTimeMillis();
 
             // use streamWrite for now:
@@ -1622,6 +1642,7 @@ public class testVFS extends VTestCase {
      * @throws VlException
      */
     public void testStreamWriteTruncates() throws VlException {
+        verbose(1, "testStreamWriteTruncates");
         VFile remoteFile = null;
         remoteFile = getRemoteTestDir().createFile("testStreamWriteTruncate");
 
@@ -1662,10 +1683,11 @@ public class testVFS extends VTestCase {
      */
     public void testMultiStreamWritesCheckLengths() throws VlException {
         // disabled for now :
-        if (true) {
-            return;
-        }
+//        if (true) {
+//            return;
+//        }
 
+        verbose(1, "testMultiStreamWritesCheckLengths");
         int numTries = 50;
         int maxSize = 1000;
 
@@ -1719,6 +1741,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testCopyMoveToLocal(boolean isMove) throws VlException {
+        verbose(1, "testCopyMoveToLocal");
         VFile localFile = null;
         VFile remoteFile = null;
 
@@ -1751,10 +1774,12 @@ public class testVFS extends VTestCase {
     }
 
     public void testCopyToLocal() throws VlException {
+        verbose(1, "testCopyToLocal");
         testCopyMoveToLocal(false);
     }
 
     public void testMoveToLocal() throws VlException {
+        verbose(1, "testMoveToLocal");
         testCopyMoveToLocal(true);
     }
 
@@ -1762,6 +1787,7 @@ public class testVFS extends VTestCase {
      * Test readRandomBytes first before testing random reads+writes
      */
     public void testRandomReadable() throws VlException {
+        verbose(1, "testRandomReadable");
         VFile localFile = this.localTempDir.createFile("readBytesFile1");
         int len = 16;
         byte orgBuffer[] = new byte[len];
@@ -1836,6 +1862,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testVRandomReader() throws VlException {
+        verbose(1, "testVRandomReader");
         VFile localFile = this.localTempDir.createFile("RandomReaderFile");
 
         StringBuffer contents = new StringBuffer();
@@ -1904,7 +1931,7 @@ public class testVFS extends VTestCase {
         if (getTestWriteTests() == false) {
             return;
         }
-
+        verbose(1, "testReadWriteBytes");
         VFile newFile = getRemoteTestDir().createFile("someBytes");
 
         // write single byte:
@@ -1950,7 +1977,7 @@ public class testVFS extends VTestCase {
         if (getTestWriteTests() == false) {
             return;
         }
-
+        verbose(1, "testReadWriteRandomBytes");
         VFile newFile = getRemoteTestDir().createFile("randomBytes");
         VRandomAccessable randomWriter = null;
 
@@ -2064,6 +2091,7 @@ public class testVFS extends VTestCase {
 
     private void testReadWriteBytes(VFile newFile, long offset, byte[] buffer1)
             throws VlException {
+        verbose(1, "testReadWriteBytes");
         VRandomAccessable randomWriter = null;
 
         if (newFile instanceof VRandomAccessable) {
@@ -2161,7 +2189,7 @@ public class testVFS extends VTestCase {
      */
     public void testStreamReadWriteSingleBytes() throws Exception {
         VFile remoteFile = null;
-
+        verbose(1, "testStreamReadWriteSingleBytes");
         // negative values should be auto-casted to their positive (usigned)
         // byte equivalents like in a cast
         // 0=0,1=0,127=127 AND -1 = 255, -2=254, etc,until -128=128 !
@@ -2257,6 +2285,7 @@ public class testVFS extends VTestCase {
     // Test eXtra Resource Interfaces (Under construction)
     // ========================================================================
     public void testVUnixAttributes() throws VlException {
+        verbose(1, "testVUnixAttributes");
         if ((getRemoteTestDir().isLocal()) && (Global.isWindows())) {
             message("Skipping Unix atributes test for windows filesystem...");
             return;
@@ -2295,6 +2324,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testVCommentable() throws VlException {
+        verbose(1, "testVCommentable");
         VFile file = getRemoteTestDir().createFile("testFile");
 
         if (file instanceof VCommentable) {
@@ -2327,6 +2357,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testVChecksum() throws VlException {
+        verbose(1, "testVChecksum");
         VFile remoteFile = getRemoteTestDir().createFile("testChecksum.txt");
 
         remoteFile.setContents(TEST_CONTENTS);
@@ -2394,7 +2425,7 @@ public class testVFS extends VTestCase {
     }
 
     public void testVReplicatable() throws VlException {
-
+        verbose(1, "testVReplicatable");
         String fileName = "testReplicable.txt";
         VFile remoteFile = null;
 
@@ -2990,17 +3021,18 @@ public class testVFS extends VTestCase {
     }
 
     public void testUpDownloadLargeFile() throws VlException, IOException {
-
+        verbose(1, "testUpDownloadLargeFile");
         VFile newFile = getRemoteTestDir().createFile("tesLargeFile");
         byte[] randomData = new byte[1024 * 1024];//1MB
         Random r = new Random();
         OutputStream lfos = newFile.getOutputStream();
-        int count = 50;
+        int count = 20;
 
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < count; i++) {
             r.nextBytes(randomData);
+            verbose(1, "write: " + randomData.length +" "+i+"/"+count);
             lfos.write(randomData);
         }
 
@@ -3036,6 +3068,7 @@ public class testVFS extends VTestCase {
         startTime = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
             r.nextBytes(randomData);
+            verbose(1, "setContents: " + randomData.length + " i=" + i + "/" + count);
             getRemoteTestDir().createFile("tesLargeFile" + i).setContents(randomData);
         }
 

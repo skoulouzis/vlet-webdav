@@ -19,6 +19,7 @@ import nl.uva.vlet.data.StringHolder;
 import nl.uva.vlet.data.VAttribute;
 import nl.uva.vlet.data.VAttributeConstants;
 import nl.uva.vlet.exception.ResourceAlreadyExistsException;
+import nl.uva.vlet.exception.ResourceCreationFailedException;
 import nl.uva.vlet.exception.ResourceNotFoundException;
 import nl.uva.vlet.exception.VRLSyntaxException;
 import nl.uva.vlet.exception.VlException;
@@ -93,6 +94,7 @@ public class WebdavFileSystem extends FileSystemNode {
     private HttpConnectionManagerParams httpConnectionParams;
     private HttpClient client;
     private boolean useSSL;
+    private ServerInfo info;
 
     /**
      * Creates a WebdavFileSystem. Most of the interaction with a server happens
@@ -125,8 +127,13 @@ public class WebdavFileSystem extends FileSystemNode {
         connect();
 
         VRL newVRL = vrl;
-        if (vrl.getPath().endsWith("~")) {
-            newVRL = vrl.copyWithNewPath("/");
+        String path = vrl.getPath();
+        if (path.endsWith("~")) {
+//            newVRL = vrl.copyWithNewPath("/");
+            newVRL = info.getRootPath();
+        }
+        if (path.equals("/") && !info.getRootPath().equals(vrl)) {
+            newVRL = info.getRootPath();
         }
 
         ArrayList<VFSNode> nodes = propFind(newVRL, DavConstants.PROPFIND_ALL_PROP_INCLUDE, DavConstants.DEPTH_0);
@@ -650,11 +657,19 @@ public class WebdavFileSystem extends FileSystemNode {
             int code = executeMethod(mkCol);
 
             if (code != HttpStatus.SC_CREATED && !ignoreExisting) {
-                throw new VlException("Could not create " + vrl + " " + mkCol.getStatusText());
+                throw new ResourceAlreadyExistsException("Could not create " + vrl + " " + mkCol.getStatusText());
             }
 
             ArrayList<VFSNode> nodes = propFind(vrl, DavConstants.PROPFIND_ALL_PROP_INCLUDE, DavConstants.DEPTH_0);
-            dir = (WebdavDir) nodes.get(0);
+
+            VFSNode node = nodes.get(0);
+            if (node instanceof WebdavDir) {
+                dir = (WebdavDir) nodes.get(0);
+            } else {
+                throw new ResourceCreationFailedException("File " + vrl + " not created");
+            }
+
+
         } catch (HttpException e) {
             throw new VlException(e);
         } catch (IOException e) {
@@ -671,6 +686,7 @@ public class WebdavFileSystem extends FileSystemNode {
         return existsPath(fileVrl);
     }
 
+    @Override
     public WebdavFile createFile(VRL vrl, boolean ignoreExisting) throws VlException {
 
         // Since the call is not creating any exception we have to check if file
@@ -686,9 +702,18 @@ public class WebdavFileSystem extends FileSystemNode {
                 vrlToUrl(vrl).toString());
         try {
             int code = executeMethod(put);
+            if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
+                throw new ResourceCreationFailedException("File " + vrl + " not created");
+            }
 
             ArrayList<VFSNode> nodes = propFind(vrl, DavConstants.PROPFIND_ALL_PROP_INCLUDE, DavConstants.DEPTH_0);
-            file = (WebdavFile) nodes.get(0);
+            VFSNode node = nodes.get(0);
+            if (node instanceof WebdavFile) {
+                file = (WebdavFile) nodes.get(0);
+            } else {
+                throw new ResourceCreationFailedException("File " + vrl + " not created");
+            }
+
 
         } catch (HttpException e) {
             throw new VlException(e);
@@ -932,7 +957,6 @@ public class WebdavFileSystem extends FileSystemNode {
     private void setRoot(VRL location, ServerInfo info) {
         String[] elements = location.getPathElements();
         VRL root = info.getRootPath();
-        System.err.println("Root: " + root);
         boolean exists = false;
         try {
             ArrayList<VFSNode> result = propFind(root, DavConstants.PROPFIND_PROPERTY_NAMES,
@@ -945,7 +969,6 @@ public class WebdavFileSystem extends FileSystemNode {
         if (!exists) {
             for (String v : elements) {
                 root = root.append(v);
-                System.err.println("Root: " + root);
                 try {
                     ArrayList<VFSNode> result = propFind(root, DavConstants.PROPFIND_PROPERTY_NAMES,
                             DavConstants.DEPTH_0);
@@ -960,5 +983,6 @@ public class WebdavFileSystem extends FileSystemNode {
         }
         info.setRootPath(root.getPath());
         info.store();
+        this.info = info;
     }
 }
