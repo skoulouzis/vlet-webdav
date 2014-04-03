@@ -43,7 +43,7 @@ public class WebdavFileSystem extends FileSystemNode {
 
     public WebdavFileSystem(VRSContext context, ServerInfo info, VRL vrl) {
         super(context, info);
-        if (vrl.getScheme().equals("webdavsSlide")) {
+        if (vrl.getScheme().endsWith("ssl")) {
             useSSL = true;
         }
         int port = getPort();

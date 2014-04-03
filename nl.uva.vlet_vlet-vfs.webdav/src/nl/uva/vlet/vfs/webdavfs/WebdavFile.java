@@ -173,4 +173,13 @@ public class WebdavFile extends VFile {
     public boolean delete() throws VlException {
         return webdavfs.delete(getVRL(), true);
     }
+
+    @Override
+    protected void uploadFrom(VFSTransfer transferInfo, VFile localSource) throws VlException, VRLSyntaxException {
+        this.webdavfs.uploadFile(transferInfo, localSource, getVRL());
+    }
+
+    public void uploadFrom(VFile localSource) throws VlException, VRLSyntaxException {
+        this.webdavfs.uploadFile(null, localSource, getVRL());
+    }
 }

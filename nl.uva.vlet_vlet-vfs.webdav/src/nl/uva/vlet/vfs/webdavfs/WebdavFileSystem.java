@@ -1,5 +1,6 @@
 package nl.uva.vlet.vfs.webdavfs;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,8 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nl.uva.vlet.ClassLogger;
 import nl.uva.vlet.Global;
@@ -29,6 +28,7 @@ import nl.uva.vlet.vfs.FileSystemNode;
 import nl.uva.vlet.vfs.VDir;
 import nl.uva.vlet.vfs.VFSClient;
 import nl.uva.vlet.vfs.VFSNode;
+import nl.uva.vlet.vfs.VFSTransfer;
 import nl.uva.vlet.vfs.VFile;
 import nl.uva.vlet.vrl.VRL;
 import nl.uva.vlet.vrs.ServerInfo;
@@ -49,6 +49,9 @@ import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
+import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -66,7 +69,6 @@ import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 import org.apache.jackrabbit.webdav.client.methods.PutMethod;
 import org.apache.jackrabbit.webdav.property.DavProperty;
 import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
-import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.xerces.dom.DeferredElementNSImpl;
@@ -107,7 +109,7 @@ public class WebdavFileSystem extends FileSystemNode {
     public WebdavFileSystem(VRSContext context, ServerInfo info, VRL location) {
 
         super(context, info);
-        if (location.getScheme().equals("webdavs")) {
+        if (location.getScheme().endsWith("ssl") ) {
             useSSL = true;
         }
         int port = getPort();
@@ -813,7 +815,6 @@ public class WebdavFileSystem extends FileSystemNode {
     }
 
     protected void upload(VRL sorce, VRL destination) throws VlException {
-
         PutMethod put = null;
         try {
             URL uri = vrlToUrl(destination);
@@ -825,7 +826,6 @@ public class WebdavFileSystem extends FileSystemNode {
             VFile file = Vclient.getFile(sorce);
 
             RequestEntity requestEntity = new InputStreamRequestEntity(file.getInputStream());
-
             put.setRequestEntity(requestEntity);
 
             executeMethod(put);
@@ -836,6 +836,45 @@ public class WebdavFileSystem extends FileSystemNode {
             throw new VlIOException(e);
         } finally {
             put.releaseConnection();
+        }
+    }
+
+    void uploadFile(VFSTransfer transferInfo, VFile localSource, VRL vrl) throws VlException {
+        if (transferInfo != null) {
+            transferInfo.startSubTask("UploadToWebDAV", localSource.getLength());
+        }
+        PutMethod put = null;
+        try {
+            URL uri = vrlToUrl(vrl);
+
+            put = new PutMethod(uri.toString());
+
+//            long len = localSource.getLength();
+            RequestEntity requestEntity = null;
+            File file = new File(localSource.getVRL().toURI());
+            
+            Part[] parts = {
+                new FilePart(file.getName(), file)
+            };
+            requestEntity = new MultipartRequestEntity(parts, put.getParams());
+
+
+//            VFSClient Vclient = new VFSClient(getContext());
+//            RequestEntity requestEntity = new InputStreamRequestEntity(localSource.getInputStream());
+            put.setRequestEntity(requestEntity);
+
+            executeMethod(put);
+        } catch (HttpException e) {
+
+            throw new VlException(e);
+        } catch (IOException e) {
+            throw new VlIOException(e);
+        } finally {
+            put.releaseConnection();
+        }
+
+        if (transferInfo != null) {
+            transferInfo.endTask("UploadToWebDAV");
         }
     }
 

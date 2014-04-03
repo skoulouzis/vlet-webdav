@@ -45,7 +45,7 @@ public class testVFSWebDaV extends testVFS {
 
     static {
         try {
-            testLoc = new VRL("webdavs://host/path");
+            testLoc = new VRL("webdavssl://host");
         } catch (VRLSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -62,8 +62,7 @@ public class testVFSWebDaV extends testVFS {
         return false;
     }
 
-    public static Test suite() throws VlException, FileNotFoundException,
-            IOException {
+    public static Test suite() throws VlException, FileNotFoundException, IOException {
         try {
             VRS.getRegistry().addVRSDriverClass(WebdavFSFactory.class);
         } catch (Exception e) {
@@ -74,12 +73,10 @@ public class testVFSWebDaV extends testVFS {
 
         ServerInfo info = ServerInfo.createFor(context, testLoc);
 
-        info.setUsername("USER");
-
-        info.setPassword("PASS");
+        info.setUsername("user");
+        info.setPassword("pass");
 
         info.store();
-
         return new TestSuite(testVFSWebDaV.class);
     }
 

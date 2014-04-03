@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Random;
 
 import junit.framework.Assert;
+import static junit.framework.Assert.assertEquals;
 import nl.uva.vlet.Global;
 import nl.uva.vlet.data.IntegerHolder;
 import nl.uva.vlet.data.StringHolder;
@@ -72,6 +73,8 @@ import nl.uva.vlet.vfs.VLogicalFileAlias;
 import nl.uva.vlet.vfs.VReplicatable;
 import nl.uva.vlet.vfs.VThirdPartyTransferable;
 import nl.uva.vlet.vfs.VUnixFileAttributes;
+import static nl.uva.vlet.vfs.test.VTestCase.verbose;
+import nl.uva.vlet.vfs.webdavfs.WebdavFile;
 import nl.uva.vlet.vrl.VRL;
 import nl.uva.vlet.vrs.ServerInfo;
 import nl.uva.vlet.vrs.VCommentable;
@@ -3032,7 +3035,7 @@ public class testVFS extends VTestCase {
 
         for (int i = 0; i < count; i++) {
             r.nextBytes(randomData);
-            verbose(1, "write: " + randomData.length +" "+i+"/"+count);
+            verbose(1, "write: " + randomData.length + " " + i + "/" + count);
             lfos.write(randomData);
         }
 
@@ -3146,5 +3149,47 @@ public class testVFS extends VTestCase {
 
     protected void setOtherRemoteLocation(VRL otherRemoteLocation) {
         this.otherRemoteLocation = otherRemoteLocation;
+    }
+
+    public void testUpDownloadLargeFile2() throws VlException, IOException {
+
+        VFile localFile = localTempDir.createFile("tesLargeFile2");
+        byte[] randomData = new byte[1024 * 1024];//1MB
+        Random r = new Random();
+        OutputStream lfos = localFile.getOutputStream();
+        int count = 800;
+        for (int i = 0; i < count; i++) {
+            r.nextBytes(randomData);
+            lfos.write(randomData);
+        }
+
+        lfos.flush();
+        lfos.close();
+
+
+
+        VFile remoteFile = getRemoteTestDir().createFile("tesLargeFile2");
+
+
+        long startTime = System.currentTimeMillis();
+        if (remoteFile instanceof WebdavFile) {
+            ((WebdavFile) remoteFile).uploadFrom(localFile);
+        } else {
+            localFile.copyTo(remoteFile);
+        }
+        long totalTime = System.currentTimeMillis() - startTime;
+
+        long len = remoteFile.getLength();
+        verbose(1, "Uploaded " + (len / 1024.0 * 1024.0 * 1024.0) + " GB");
+        double up_speed = (len / 1024.0) / (totalTime / 1000.0);
+        verbose(1, "upload speed=" + ((int) (up_speed * 1000)) / 1000.0
+                + "KB/s");
+
+
+        long expectedLen = randomData.length * count;
+        assertEquals(expectedLen, len);
+        remoteFile.delete();
+        localFile.delete();
+
     }
 }
