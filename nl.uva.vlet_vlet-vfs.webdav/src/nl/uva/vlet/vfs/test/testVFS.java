@@ -1571,71 +1571,71 @@ public class testVFS extends VTestCase {
 
     }
 
-//    /**
-//     * Create remote file, write to it, and move it back to here to check
-//     * contents.
-//     */
-//    public void testStreamWrite() throws Exception {
-//        if (getTestDoBigTests() == false) {
-//            return;
-//        }
-//        verbose(1, "testStreamWrite");
-//        VFile localFile = null;
-//        VFile remoteFile = null;
-//
-//        {
-//            remoteFile = getRemoteTestDir().createFile("test10MBstreamWrite");
-//
-//            int len = 5 * 1024 * 1024;
-//
-//            // fixed seed for reproducable tests
-//            Random generator = new Random(13);
-//
-//            byte buffer[] = new byte[len];
-//            verbose(1, "testStreamWrite generate random");
-//            generator.nextBytes(buffer);
-//            verbose(1, "testStreamWrite start");
-//            long read_start_time = System.currentTimeMillis();
-//
-//            // use streamWrite for now:
-//            verbose(1, "streadWriting to:" + remoteFile);
-//            remoteFile.streamWrite(buffer, 0, buffer.length);
-//            long total_read_millis = System.currentTimeMillis()
-//                    - read_start_time;
-//            double speed = (len / 1024.0) / (total_read_millis / 1000.0);
-//            verbose(1, "write speed=" + ((int) (speed * 1000)) / 1000.0
-//                    + "KB/s");
-//
-//            // move to remote (and do same basic asserts).
-//            verbose(1, "moving to local dir:" + localTempDir);
-//            localFile = remoteFile.moveTo(this.localTempDir);
-//            Assert.assertNotNull("new remote File is NULL", localFile);
-//            Assert.assertFalse(
-//                    "remote file reports it still exists, after it has moved",
-//                    remoteFile.exists());
-//
-//            // get contents of localfile:
-//            byte newcontents[] = localFile.getContents();
-//            int newlen = newcontents.length;
-//
-//            // check size:
-//            Assert.assertEquals(
-//                    "number of read bytes does not match file length", len,
-//                    newlen);
-//
-//            // compare contents
-//            for (int i = 0; i < len; i++) {
-//                if (buffer[i] != newcontents[i]) {
-//                    Assert.assertEquals(
-//                            "Contents of file not the same. Byte nr=" + i,
-//                            buffer[i], newcontents[i]);
-//                }
-//            }
-//
-//            localFile.delete();
-//        }
-//
-//    }
+    /**
+     * Create remote file, write to it, and move it back to here to check
+     * contents.
+     */
+    public void testStreamWrite() throws Exception {
+        if (getTestDoBigTests() == false) {
+            return;
+        }
+        verbose(1, "testStreamWrite");
+        VFile localFile = null;
+        VFile remoteFile = null;
+
+        {
+            remoteFile = getRemoteTestDir().createFile("test10MBstreamWrite");
+
+            int len = 5 * 1024 * 1024;
+
+            // fixed seed for reproducable tests
+            Random generator = new Random(13);
+
+            byte buffer[] = new byte[len];
+            verbose(1, "testStreamWrite generate random");
+            generator.nextBytes(buffer);
+            verbose(1, "testStreamWrite start");
+            long read_start_time = System.currentTimeMillis();
+
+            // use streamWrite for now:
+            verbose(1, "streadWriting to:" + remoteFile);
+            remoteFile.streamWrite(buffer, 0, buffer.length);
+            long total_read_millis = System.currentTimeMillis()
+                    - read_start_time;
+            double speed = (len / 1024.0) / (total_read_millis / 1000.0);
+            verbose(1, "write speed=" + ((int) (speed * 1000)) / 1000.0
+                    + "KB/s");
+
+            // move to remote (and do same basic asserts).
+            verbose(1, "moving to local dir:" + localTempDir);
+            localFile = remoteFile.moveTo(this.localTempDir);
+            Assert.assertNotNull("new remote File is NULL", localFile);
+            Assert.assertFalse(
+                    "remote file reports it still exists, after it has moved",
+                    remoteFile.exists());
+
+            // get contents of localfile:
+            byte newcontents[] = localFile.getContents();
+            int newlen = newcontents.length;
+
+            // check size:
+            Assert.assertEquals(
+                    "number of read bytes does not match file length", len,
+                    newlen);
+
+            // compare contents
+            for (int i = 0; i < len; i++) {
+                if (buffer[i] != newcontents[i]) {
+                    Assert.assertEquals(
+                            "Contents of file not the same. Byte nr=" + i,
+                            buffer[i], newcontents[i]);
+                }
+            }
+
+            localFile.delete();
+        }
+
+    }
 
     /**
      * Regression test for some stream write implementations: When writing to an
@@ -2978,47 +2978,6 @@ public class testVFS extends VTestCase {
         newDir.delete();
     }
 
-    public void testUpDownloadLargeFile2() throws VlException, IOException {
-
-        VFile localFile = localTempDir.createFile("tesLargeFile2");
-        byte[] randomData = new byte[1024 * 1024];//1MB
-        Random r = new Random();
-        OutputStream lfos = localFile.getOutputStream();
-        int count = 800;
-        for (int i = 0; i < count; i++) {
-            r.nextBytes(randomData);
-            lfos.write(randomData);
-        }
-
-        lfos.flush();
-        lfos.close();
-
-
-
-        VFile remoteFile = getRemoteTestDir().createFile("tesLargeFile2");
-
-
-        long startTime = System.currentTimeMillis();
-        if (remoteFile instanceof WebdavFile) {
-            ((WebdavFile) remoteFile).uploadFrom(localFile);
-        } else {
-            localFile.copyTo(remoteFile);
-        }
-        long totalTime = System.currentTimeMillis() - startTime;
-
-        long len = remoteFile.getLength();
-        verbose(1, "Uploaded " + (len / 1024.0 * 1024.0 * 1024.0) + " GB");
-        double up_speed = (len / 1024.0) / (totalTime / 1000.0);
-        verbose(1, "upload speed=" + ((int) (up_speed * 1000)) / 1000.0
-                + "KB/s");
-
-
-        long expectedLen = randomData.length * count;
-        assertEquals(expectedLen, len);
-        remoteFile.delete();
-        localFile.delete();
-    }
-
     public void testZExceptionsExistingDir() throws VlException {
         VDir newDir = getRemoteTestDir().createDir("testExistingDir2");
 
@@ -3190,5 +3149,47 @@ public class testVFS extends VTestCase {
 
     protected void setOtherRemoteLocation(VRL otherRemoteLocation) {
         this.otherRemoteLocation = otherRemoteLocation;
+    }
+
+    public void testUpDownloadLargeFile2() throws VlException, IOException {
+
+        VFile localFile = localTempDir.createFile("tesLargeFile2");
+        byte[] randomData = new byte[1024 * 1024];//1MB
+        Random r = new Random();
+        OutputStream lfos = localFile.getOutputStream();
+        int count = 800;
+        for (int i = 0; i < count; i++) {
+            r.nextBytes(randomData);
+            lfos.write(randomData);
+        }
+
+        lfos.flush();
+        lfos.close();
+
+
+
+        VFile remoteFile = getRemoteTestDir().createFile("tesLargeFile2");
+
+
+        long startTime = System.currentTimeMillis();
+        if (remoteFile instanceof WebdavFile) {
+            ((WebdavFile) remoteFile).uploadFrom(localFile);
+        } else {
+            localFile.copyTo(remoteFile);
+        }
+        long totalTime = System.currentTimeMillis() - startTime;
+
+        long len = remoteFile.getLength();
+        verbose(1, "Uploaded " + (len / 1024.0 * 1024.0 * 1024.0) + " GB");
+        double up_speed = (len / 1024.0) / (totalTime / 1000.0);
+        verbose(1, "upload speed=" + ((int) (up_speed * 1000)) / 1000.0
+                + "KB/s");
+
+
+        long expectedLen = randomData.length * count;
+        assertEquals(expectedLen, len);
+        remoteFile.delete();
+        localFile.delete();
+
     }
 }
