@@ -87,10 +87,8 @@ public class WebdavOutputStream extends OutputStream {
     @Override
     public void close() throws IOException {
         localOS.close();
-
         try {
             webdavfs.upload(localFile.getVRL(), remoteFile.getVRL());
-
             localFile.delete();
         } catch (VlException e) {
             throw new IOException(e);
