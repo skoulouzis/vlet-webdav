@@ -1,18 +1,25 @@
 package nl.uva.vlet.vfs.webdavfs;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import nl.uva.vlet.ClassLogger;
 import nl.uva.vlet.data.StringList;
 import nl.uva.vlet.data.VAttribute;
 import nl.uva.vlet.exception.VRLSyntaxException;
 import nl.uva.vlet.exception.VlException;
+import nl.uva.vlet.exception.VlIOException;
 import nl.uva.vlet.vfs.VFSNode;
 import nl.uva.vlet.vfs.VFSTransfer;
 import nl.uva.vlet.vfs.VFile;
 import nl.uva.vlet.vrl.VRL;
+import org.apache.commons.httpclient.HttpException;
 
 import org.apache.jackrabbit.webdav.DavConstants;
 import org.apache.jackrabbit.webdav.property.DavProperty;
@@ -97,14 +104,36 @@ public class WebdavFile extends VFile {
 
         if (exists) {
             VFSNode node = result.get(0);
-            if (node instanceof WebdavFile) {
+            String encodeURLNode = null;
+            String encodeURLthis = null;
+//            try {
+//                encodeURLNode = URLEncoder.encode(node.getVRL().toString(), "UTF-8")
+//                        .replaceAll("\\+", "%20")
+//                        .replaceAll("\\%21", "!")
+//                        .replaceAll("\\%27", "'")
+//                        .replaceAll("\\%28", "(")
+//                        .replaceAll("\\%29", ")")
+//                        .replaceAll("\\%7E", "~");
+//
+//
+//                encodeURLthis = URLEncoder.encode(getVRL().toString(), "UTF-8")
+//                        .replaceAll("\\+", "%20")
+//                        .replaceAll("\\%21", "!")
+//                        .replaceAll("\\%27", "'")
+//                        .replaceAll("\\%28", "(")
+//                        .replaceAll("\\%29", ")")
+//                        .replaceAll("\\%7E", "~");
+//            } catch (UnsupportedEncodingException ex) {
+//                throw new VlException(ex);
+//            }
+            if (node instanceof WebdavFile) {//&& encodeURLNode.equals(encodeURLthis)) {
                 WebdavFile file = (WebdavFile) result.get(0);
                 this._davProps = file._davProps;
             } else {
                 return false;
             }
-        }
 
+        }
         return exists;
     }
 
@@ -181,5 +210,16 @@ public class WebdavFile extends VFile {
 
     public void uploadFrom(VFile localSource) throws VlException, VRLSyntaxException {
         this.webdavfs.uploadFile(null, localSource, getVRL());
+    }
+
+    @Override
+    public void setContents(String contents, String encoding) throws VRLSyntaxException, VlException {
+        try {
+            this.webdavfs.setContents(contents, encoding, getVRL());
+        } catch (UnsupportedEncodingException | HttpException ex) {
+            throw new VlException(ex);
+        } catch (IOException ex) {
+            throw new VlIOException(ex);
+        }
     }
 }

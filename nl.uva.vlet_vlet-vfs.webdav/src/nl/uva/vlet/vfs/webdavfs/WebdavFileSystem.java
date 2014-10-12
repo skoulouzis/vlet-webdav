@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -59,6 +60,7 @@ import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.FilePart;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
@@ -81,6 +83,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertyIterator;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
 import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.xerces.dom.DeferredElementNSImpl;
+import static org.junit.Assert.assertEquals;
 
 import sun.misc.BASE64Encoder;
 
@@ -835,7 +838,7 @@ public class WebdavFileSystem extends FileSystemNode {
             Part[] parts = new Part[1];
             if (source.getScheme().equals("file")) {
 
-                parts[0] = new FilePart(source.getBasename(), new File(source.toURIString()));
+                parts[0] = new FilePart(source.getBasename(), new File(source.getPath()));
 
             } else {
                 VFSClient Vclient = new VFSClient(getContext());
@@ -891,15 +894,15 @@ public class WebdavFileSystem extends FileSystemNode {
                     allowedMethods = options.getAllowedMethods();
                 }
                 options.releaseConnection();
-
-                while (allowedMethods.hasMoreElements()) {
-                    String method = (String) allowedMethods.nextElement();
-                    if (method.contains("POST")) {
-                        canPost = true;
-                        break;
+                if (allowedMethods != null) {
+                    while (allowedMethods.hasMoreElements()) {
+                        String method = (String) allowedMethods.nextElement();
+                        if (method.contains("POST")) {
+                            canPost = true;
+                            break;
+                        }
                     }
                 }
-
             }
 
             if (canPost) {
@@ -977,7 +980,7 @@ public class WebdavFileSystem extends FileSystemNode {
             put.setRequestEntity(requestEntity);
             int code = executeMethod(put);
 
-            if (code != HttpStatus.SC_NO_CONTENT) {
+            if (String.valueOf(code).startsWith("4") || String.valueOf(code).startsWith("5")) {
                 throw new VlException(put.getStatusText());
             }
 
@@ -1083,12 +1086,12 @@ public class WebdavFileSystem extends FileSystemNode {
 
     public boolean isReadable(DavPropertySet davProperties, boolean defaultValue) {
         // tobedone
-        return defaultValue;
+        return true;
     }
 
     public boolean isWritable(DavPropertySet davProperties, boolean defaultValue) {
         // tobedone
-        return defaultValue;
+        return true;
     }
 
 //    protected HttpClient getHttpClient() {
@@ -1134,5 +1137,17 @@ public class WebdavFileSystem extends FileSystemNode {
         info.setRootPath(root.getPath());
         info.store();
         this.info = info;
+    }
+
+    void setContents(String contents, String encoding, VRL vrl) throws VRLSyntaxException, UnsupportedEncodingException, HttpException, IOException, VlException {
+
+
+        org.apache.jackrabbit.webdav.client.methods.PutMethod put = new org.apache.jackrabbit.webdav.client.methods.PutMethod(
+                vrlToUrl(vrl).toString());
+        put.setRequestEntity(new StringRequestEntity(contents, "text/plain", encoding));
+        int code = executeMethod(put);
+        if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
+            throw new ResourceCreationFailedException("File " + vrl + " not created");
+        }
     }
 }

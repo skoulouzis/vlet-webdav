@@ -45,7 +45,7 @@ public class testVFSWebDaV extends testVFS {
 
     static {
         try {
-            testLoc = new VRL("webdavssl://host");
+            testLoc = new VRL("webdav://localhost:8080/lobcder/dav/TEST");
         } catch (VRLSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -59,7 +59,7 @@ public class testVFSWebDaV extends testVFS {
 
     @Override
     protected boolean getTestDoBigTests() {
-        return false;
+        return true;
     }
 
     public static Test suite() throws VlException, FileNotFoundException, IOException {
@@ -73,8 +73,8 @@ public class testVFSWebDaV extends testVFS {
 
         ServerInfo info = ServerInfo.createFor(context, testLoc);
 
-        info.setUsername("user");
-        info.setPassword("pass");
+        info.setUsername("RoomC3156");
+        info.setPassword("admin");
 
         info.store();
         return new TestSuite(testVFSWebDaV.class);
