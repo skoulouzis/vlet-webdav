@@ -142,6 +142,13 @@ public class testVFS extends VTestCase {
     private boolean testEncodedPaths = true;
     private boolean testStrangeChars = true;
 
+    private VDir createDir(VFileSystem fs, VRL dirpath, boolean ignore)
+            throws VlException {
+        VDir dir = fs.newDir(dirpath);
+        dir.create(ignore);
+        return dir;
+    }
+
     /**
      * Sets up the tests fixture. (Called before every tests case method.)
      *
@@ -224,6 +231,49 @@ public class testVFS extends VTestCase {
 
     boolean getTestRenames() {
         return testRenames;
+    }
+
+    /**
+     * For 3rd party transfer !
+     */
+    public VRL getOtherRemoteLocation() {
+        return this.otherRemoteLocation;
+    }
+
+    protected void setTestRenames(boolean doRename) {
+        this.testRenames = doRename;
+    }
+
+    protected void setTestStrangeChars(boolean testStrange) {
+        this.testStrangeChars = testStrange;
+    }
+
+    protected void setTestWriteTests(boolean doWrites) {
+        this.doWrites = doWrites;
+    }
+
+    protected boolean getTestWriteTests() {
+        return doWrites;
+    }
+
+    protected void setTestDoBigTests(boolean doBigTests) {
+        this.doBigTests = doBigTests;
+    }
+
+    protected boolean getTestDoBigTests() {
+        return doBigTests;
+    }
+
+    public void setRemoteTestDir(VDir remoteTestDir) {
+        this.remoteTestDir = remoteTestDir;
+    }
+
+    public VDir getRemoteTestDir() {
+        return remoteTestDir;
+    }
+
+    protected void setOtherRemoteLocation(VRL otherRemoteLocation) {
+        this.otherRemoteLocation = otherRemoteLocation;
     }
 
     // =======
@@ -725,13 +775,6 @@ public class testVFS extends VTestCase {
 
     }
 
-    private VDir createDir(VFileSystem fs, VRL dirpath, boolean ignore)
-            throws VlException {
-        VDir dir = fs.newDir(dirpath);
-        dir.create(ignore);
-        return dir;
-    }
-
     // not all implementations can handle spaces
     public void testCreateAndDeleteDirWithSpace() throws VlException {
         if (this.getTestEncodedPaths() == false) {
@@ -872,8 +915,9 @@ public class testVFS extends VTestCase {
 
         Assert.assertNotNull("getFile() of renamed file returned NULL",
                 renamedFile);
+        result = renamedFile.exists();
         Assert.assertTrue("New file must exist after rename!",
-                renamedFile.exists());
+                result);
 
         // rename back
         result = renamedFile.renameTo(orgFileName, false);
@@ -3092,37 +3136,6 @@ public class testVFS extends VTestCase {
     // VFS methods which must be subclassed by VFS Implementation.
 
     /**
-     * For 3rd party transfer !
-     */
-    public VRL getOtherRemoteLocation() {
-        return this.otherRemoteLocation;
-    }
-
-    protected void setTestRenames(boolean doRename) {
-        this.testRenames = doRename;
-    }
-
-    protected void setTestStrangeChars(boolean testStrange) {
-        this.testStrangeChars = testStrange;
-    }
-
-    protected void setTestWriteTests(boolean doWrites) {
-        this.doWrites = doWrites;
-    }
-
-    protected boolean getTestWriteTests() {
-        return doWrites;
-    }
-
-    protected void setTestDoBigTests(boolean doBigTests) {
-        this.doBigTests = doBigTests;
-    }
-
-    protected boolean getTestDoBigTests() {
-        return doBigTests;
-    }
-
-    /**
      * LAST UNIT TEST: Cleanup test directories
      */
     public void testZZZRemoveTestDir() {
@@ -3137,18 +3150,6 @@ public class testVFS extends VTestCase {
         } catch (Exception e) {
             message("*** Warning. Deleting local test directory failed:" + e);
         }
-    }
-
-    public void setRemoteTestDir(VDir remoteTestDir) {
-        this.remoteTestDir = remoteTestDir;
-    }
-
-    public VDir getRemoteTestDir() {
-        return remoteTestDir;
-    }
-
-    protected void setOtherRemoteLocation(VRL otherRemoteLocation) {
-        this.otherRemoteLocation = otherRemoteLocation;
     }
 
     public void testUpDownloadLargeFile2() throws VlException, IOException {
