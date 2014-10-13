@@ -1299,10 +1299,10 @@ public class testVFS extends VTestCase {
             }
         }
     }
-
     // =======================================================================
     // Contents/ReadWrite
     // =======================================================================
+
     public void testSetGetSimpleContentsNewFile() throws VlException {
         if (getTestWriteTests() == false) {
             return;
@@ -1341,13 +1341,19 @@ public class testVFS extends VTestCase {
         char chars[] = new char[len];
 
         for (int i = 0; i < len; i++) {
+            if (i % 100 == 0) {
+                verbose(1, "chars[" + i + "] of " + len);
+            }
             chars[i] = (char) ('A' + (i % 26));
         }
+        verbose(1, "done with chars");
 
         String bigString = new String(chars);
 
         newFile.setContents(bigString);
+        verbose(1, "setContents bigString: " + bigString.length());
         str = newFile.getContentsAsString();
+        verbose(1, "setContents bigString: " + bigString.length());
 
         if (str.compareTo(bigString) != 0) {
             String infoStr = "strlen=" + bigString.length() + ",newstrlen="

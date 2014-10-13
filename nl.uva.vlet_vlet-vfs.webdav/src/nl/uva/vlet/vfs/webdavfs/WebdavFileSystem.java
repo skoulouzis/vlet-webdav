@@ -1140,14 +1140,33 @@ public class WebdavFileSystem extends FileSystemNode {
     }
 
     void setContents(String contents, String encoding, VRL vrl) throws VRLSyntaxException, UnsupportedEncodingException, HttpException, IOException, VlException {
-
-
-        org.apache.jackrabbit.webdav.client.methods.PutMethod put = new org.apache.jackrabbit.webdav.client.methods.PutMethod(
-                vrlToUrl(vrl).toString());
-        put.setRequestEntity(new StringRequestEntity(contents, "text/plain", encoding));
-        int code = executeMethod(put);
-        if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
-            throw new ResourceCreationFailedException("File " + vrl + " not created");
+        org.apache.jackrabbit.webdav.client.methods.PutMethod put = null;
+        try {
+            put = new org.apache.jackrabbit.webdav.client.methods.PutMethod(
+                    vrlToUrl(vrl).toString());
+            put.setRequestEntity(new StringRequestEntity(contents, "text/plain", encoding));
+            int code = executeMethod(put);
+            if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
+                throw new ResourceCreationFailedException("Failed to set conetents in " + vrl);
+            }
+        } finally {
+            if (put != null) {
+                put.releaseConnection();
+            }
         }
+    }
+
+    String getContentsAsString(VRL vrl) throws VRLSyntaxException, HttpException, IOException, VlException {
+        GetMethod get = new GetMethod(vrlToUrl(vrl).toString());
+        try {
+            int code = executeMethod(get);
+            if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
+                throw new nl.uva.vlet.exception.VlException(get.getStatusText());
+            }
+        } finally {
+//            get.releaseConnection();
+        }
+        return get.getResponseBodyAsString();
+
     }
 }

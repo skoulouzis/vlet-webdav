@@ -222,4 +222,15 @@ public class WebdavFile extends VFile {
             throw new VlIOException(ex);
         }
     }
+
+    @Override
+    public String getContentsAsString() throws VlException, VRLSyntaxException {
+        try {
+            return this.webdavfs.getContentsAsString(getVRL());
+        } catch (HttpException ex) {
+            throw new nl.uva.vlet.exception.VlException(ex);
+        } catch (IOException ex) {
+            throw new nl.uva.vlet.exception.VlIOException(ex);
+        }
+    }
 }
