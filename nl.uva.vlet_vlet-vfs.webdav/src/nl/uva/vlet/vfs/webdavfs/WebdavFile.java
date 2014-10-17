@@ -138,9 +138,9 @@ public class WebdavFile extends VFile {
     }
 
     protected DavPropertySet getDavProperties() throws VlException {
-        if (_davProps != null && _davProps.getPropertyNames().length > 0) {
-            return _davProps;
-        }
+//        if (_davProps != null && _davProps.getPropertyNames().length > 0) {
+//            return _davProps;
+//        }
         _davProps = webdavfs.getProperties(getVRL());
         return _davProps;
     }

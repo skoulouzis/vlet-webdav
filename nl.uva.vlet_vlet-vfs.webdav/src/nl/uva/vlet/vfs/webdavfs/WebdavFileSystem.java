@@ -722,6 +722,7 @@ public class WebdavFileSystem extends FileSystemNode {
             if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
                 throw new ResourceCreationFailedException("File " + vrl + " not created");
             }
+            put.releaseConnection();
 
             ArrayList<VFSNode> nodes = propFind(vrl, DavConstants.PROPFIND_ALL_PROP_INCLUDE, DavConstants.DEPTH_0);
             VFSNode node = nodes.get(0);
@@ -737,7 +738,9 @@ public class WebdavFileSystem extends FileSystemNode {
         } catch (IOException e) {
             throw new VlIOException(e);
         } finally {
-            put.releaseConnection();
+            if (put != null) {
+                put.releaseConnection();
+            }
         }
 
         return file;
@@ -830,48 +833,42 @@ public class WebdavFileSystem extends FileSystemNode {
     }
 
     protected void upload(VRL source, VRL destination) throws VlException {
-        PostMethod post = null;
-        VFile localFile = null;
         try {
-            URL uri = vrlToUrl(destination);
-            post = new PostMethod(uri.toString());
-            Part[] parts = new Part[1];
-            if (source.getScheme().equals("file")) {
-
-                parts[0] = new FilePart(source.getBasename(), new File(source.getPath()));
-
-            } else {
-                VFSClient Vclient = new VFSClient(getContext());
-                VFile file = Vclient.getFile(source);
-                localFile = file.copyTo(GlobalConfig.getDefaultTempDir());
-                parts[0] = new FilePart(source.getBasename(), new File(localFile.getVRL().toURIString()));
-            }
-
-
-            MultipartRequestEntity requestEntity = new MultipartRequestEntity(parts, post.getParams());
-            post.setRequestEntity(requestEntity);
+//            URL uri = vrlToUrl(destination);
+//            post = new PostMethod(uri.toString());
+//            Part[] parts = new Part[1];
+//            if (source.getScheme().equals("file")) {
+//
+//                parts[0] = new FilePart(source.getBasename(), new File(source.getPath()));
+//
+//            } else {
+//                VFSClient Vclient = new VFSClient(getContext());
+//                VFile file = Vclient.getFile(source);
+//                localFile = file.copyTo(GlobalConfig.getDefaultTempDir());
+//                parts[0] = new FilePart(source.getBasename(), new File(localFile.getVRL().toURIString()));
+//            }
+//
+//
+//            MultipartRequestEntity requestEntity = new MultipartRequestEntity(parts, post.getParams());
+//            post.setRequestEntity(requestEntity);
 
 
 //            put = new PutMethod(uri.toString());
-//
-//            VFSClient Vclient = new VFSClient(getContext());
-//
-//            VFile file = Vclient.getFile(source);
-//
+            VFSClient Vclient = new VFSClient(getContext());
+            VFile localSource = Vclient.getFile(source);
 //            RequestEntity requestEntity = new InputStreamRequestEntity(file.getInputStream());
 //            put.setRequestEntity(requestEntity);
+//            executeMethod(post);
 
-            executeMethod(post);
+
+            putFile(localSource, destination);
+
         } catch (HttpException e) {
 
             throw new VlException(e);
         } catch (IOException e) {
             throw new VlIOException(e);
         } finally {
-            post.releaseConnection();
-            if (localFile != null) {
-                localFile.delete();
-            }
         }
     }
 
@@ -881,41 +878,38 @@ public class WebdavFileSystem extends FileSystemNode {
         }
 
         URL uri = vrlToUrl(dest);
-        OptionsMethod options = new OptionsMethod(uri.toString());
-
-
-        PostMethod post = null;
+//        OptionsMethod options = new OptionsMethod(uri.toString());
+//        PostMethod post = null;
         VFile localFile = null;
         try {
-            boolean canPost = false;
-            if (allowedMethods == null) {
-                int code = executeMethod(options);
-                if (code == HttpStatus.SC_OK) {
-                    allowedMethods = options.getAllowedMethods();
-                }
-                options.releaseConnection();
-                if (allowedMethods != null) {
-                    while (allowedMethods.hasMoreElements()) {
-                        String method = (String) allowedMethods.nextElement();
-                        if (method.contains("POST")) {
-                            canPost = true;
-                            break;
-                        }
-                    }
-                }
-            }
+//            boolean canPost = false;
+//            if (allowedMethods == null) {
+//                int code = executeMethod(options);
+//                if (code == HttpStatus.SC_OK) {
+//                    allowedMethods = options.getAllowedMethods();
+//                }
+//                options.releaseConnection();
+//                if (allowedMethods != null) {
+//                    while (allowedMethods.hasMoreElements()) {
+//                        String method = (String) allowedMethods.nextElement();
+//                        if (method.contains("POST")) {
+//                            canPost = true;
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
 
-            if (canPost) {
-                postFile(localSource, dest);
-            } else {
-                putFile(localSource, dest);
-            }
+//            if (canPost) {
+//                postFile(localSource, dest);
+//            } else {
+            putFile(localSource, dest);
+//            }
 
 
         } catch (IOException e) {
             throw new VlIOException(e);
         } finally {
-
             if (localFile != null) {
                 localFile.delete();
             }
@@ -926,35 +920,35 @@ public class WebdavFileSystem extends FileSystemNode {
         }
     }
 
-    private void postFile(VFile localSource, VRL dest) throws VRLSyntaxException, FileNotFoundException, HttpException, VlException, IOException {
-        URL uri = vrlToUrl(dest);
-        PostMethod post = new PostMethod(uri.toString());
-        try {
-            Part[] parts = new Part[1];
-            VFile localFile = null;
-            if (localSource.getVRL().getScheme().equals("file")) {
-//                String fileURI = localSource.getVRL().toURIString();
-                String path = localSource.getVRL().getPath();
-                parts[0] = new FilePart(localSource.getVRL().getBasename(), new File(path));
-            } else {
-                localFile = localSource.copyTo(GlobalConfig.getDefaultTempDir());
-                parts[0] = new FilePart(dest.getBasename(), new File(localFile.getVRL().toURIString()));
-            }
-            MultipartRequestEntity requestEntity = new MultipartRequestEntity(parts, post.getParams());
-            post.setRequestEntity(requestEntity);
-            int code = executeMethod(post);
-
-
-            if (code == HttpStatus.SC_NOT_IMPLEMENTED) {
-            }
-            if (localFile == null) {
-                localFile.delete();
-            }
-        } finally {
-            post.releaseConnection();
-        }
-    }
-
+//    private void postFile(VFile localSource, VRL dest) throws VRLSyntaxException, FileNotFoundException, HttpException, VlException, IOException {
+//        URL uri = vrlToUrl(dest);
+//        PostMethod post = new PostMethod(uri.toString());
+//        try {
+//            Part[] parts = new Part[1];
+//            VFile localFile = null;
+//            if (localSource.getVRL().getScheme().equals("file")) {
+////                String fileURI = localSource.getVRL().toURIString();
+//                String path = localSource.getVRL().getPath();
+//                parts[0] = new FilePart(localSource.getVRL().getBasename(), new File(path));
+//            } else {
+//                localFile = localSource.copyTo(GlobalConfig.getDefaultTempDir());
+//                parts[0] = new FilePart(dest.getBasename(), new File(localFile.getVRL().toURIString()));
+//            }
+//            MultipartRequestEntity requestEntity = new MultipartRequestEntity(parts, post.getParams());
+//            post.setRequestEntity(requestEntity);
+//            int code = executeMethod(post);
+//
+//
+//            if (code != HttpStatus.SC_OK || code != HttpStatus.SC_CREATED) {
+//                throw new nl.uva.vlet.exception.ResourceCreationFailedException(post.getStatusText());
+//            }
+//            if (localFile != null) {
+//                localFile.delete();
+//            }
+//        } finally {
+//            post.releaseConnection();
+//        }
+//    }
     private void putFile(VFile localSource, VRL dest) throws VRLSyntaxException, FileNotFoundException, VlException, HttpException, IOException {
         URL uri = vrlToUrl(dest);
 //        PutMethod put = new PutMethod(uri.toString());
@@ -1057,6 +1051,7 @@ public class WebdavFileSystem extends FileSystemNode {
     }
 
     public long getLength(DavPropertySet davProperties) {
+        
         if (davProperties == null) {
             return 0;
         }
