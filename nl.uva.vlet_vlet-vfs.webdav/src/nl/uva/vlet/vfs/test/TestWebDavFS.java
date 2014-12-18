@@ -50,7 +50,9 @@ public class TestWebDavFS {
             Global.init();
             VRS.getRegistry().addVRSDriverClass(nl.uva.vlet.vfs.webdavfs.WebdavFSFactory.class);
 
-            testList();
+            testExitsts();
+
+//            testList();
 
 //             testDelete();
 
@@ -140,5 +142,10 @@ public class TestWebDavFS {
 
         newFile.delete();
         logger.debugPrintf("newFile exists????%s\n", newFile.exists());
+    }
+
+    private static void testExitsts() throws VlException {
+        boolean exitsts = client.existsFile(vrl.append("speedLog"));
+        System.err.println(vrl.append("speedLog") + " exists: " + exitsts);
     }
 }

@@ -367,7 +367,7 @@ public class WebdavFileSystem extends FileSystemNode {
     private VFSNode createVFSNode(MultiStatusResponse statusResponse) throws VRLSyntaxException,
             MalformedURLException {
         DavPropertySet allProp = getProperties(statusResponse);
-        DavPropertyIterator iter = allProp.iterator();
+//        DavPropertyIterator iter = allProp.iterator();
         boolean isDir = false;
 
 //        while (iter.hasNext()) {
