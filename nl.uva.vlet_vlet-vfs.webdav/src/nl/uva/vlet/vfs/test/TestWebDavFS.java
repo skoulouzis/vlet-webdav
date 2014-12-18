@@ -1,5 +1,6 @@
 package nl.uva.vlet.vfs.test;
 
+import java.util.logging.Level;
 import nl.uva.vlet.ClassLogger;
 import nl.uva.vlet.Global;
 import nl.uva.vlet.exception.VRLSyntaxException;
@@ -111,6 +112,7 @@ public class TestWebDavFS {
 
             for (int i = 0; i < files.length; i++) {
                 logger.debugPrintf("Name: %s\n", files[i].getName());
+                logger.log(Level.INFO, files[i].getName());
             }
         }
     }
@@ -127,7 +129,7 @@ public class TestWebDavFS {
 
         newFile.delete();
         logger.debugPrintf("newFile exists????%s\n", newFile.exists());
-        
+
         newFile = testDir.newFile("testFile1b");
         newFile.create(); // use default creat();
 
