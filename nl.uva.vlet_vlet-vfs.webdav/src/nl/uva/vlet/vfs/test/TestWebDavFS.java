@@ -34,22 +34,22 @@ public class TestWebDavFS {
 
     public static void main(String[] args) {
         try {
-            vrl = new VRL("webdavs://host/path");
+            vrl = new VRL(args[0]);
 
             client = new VFSClient();
             VRSContext context = client.getVRSContext();
 
             ServerInfo info = ServerInfo.createFor(context, vrl);
 
-            info.setUsername("USER");
-            info.setPassword("PASS");
+            info.setUsername(args[1]);
+            info.setPassword(args[2]);
 
             info.store();
 
             Global.init();
             VRS.getRegistry().addVRSDriverClass(nl.uva.vlet.vfs.webdavfs.WebdavFSFactory.class);
 
-//            testList();
+            testList();
 
 //             testDelete();
 
