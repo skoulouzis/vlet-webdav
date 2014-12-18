@@ -111,7 +111,7 @@ public class TestWebDavFS {
             VFSNode[] files = dir.list();
 
             for (int i = 0; i < files.length; i++) {
-                logger.debugPrintf("Name: %s\n", files[i].getName());
+//                logger.debugPrintf("Name: %s\n", files[i].getName());
                 logger.log(Level.INFO, files[i].getName());
             }
         }
