@@ -113,6 +113,7 @@ public class TestWebDavFS {
             for (int i = 0; i < files.length; i++) {
 //                logger.debugPrintf("Name: %s\n", files[i].getName());
                 logger.log(Level.INFO, files[i].getName());
+                System.err.println(files[i].getName());
             }
         }
     }
