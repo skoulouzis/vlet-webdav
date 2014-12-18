@@ -7,7 +7,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder user pass</exec.args>
+                <exec.args>-classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder lobcderuser l0bcd3rr0ck5</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -18,7 +18,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder user pass</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder lobcderuser l0bcd3rr0ck5</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
             </properties>
@@ -30,7 +30,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>${profiler.args} -classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder user pass</exec.args>
+                <exec.args>${profiler.args} -classpath %classpath nl.uva.vlet.vfs.test.TestWebDavFS webdavssl://vphshareds1.shef.ac.uk/lobcder lobcderuser l0bcd3rr0ck5</exec.args>
                 <exec.executable>${profiler.java}</exec.executable>
             </properties>
         </action>

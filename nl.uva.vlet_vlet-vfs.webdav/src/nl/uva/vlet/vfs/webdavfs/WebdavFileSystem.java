@@ -42,12 +42,15 @@ import nl.uva.vlet.vrs.VRSContext;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
@@ -55,6 +58,7 @@ import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -268,7 +272,7 @@ public class WebdavFileSystem extends FileSystemNode {
     protected int executeMethod(HttpMethod method) throws HttpException, IOException, VlException {
         // todo: redirects!
         // PTdB: here ? 
-        // method.setFollowRedirects(true); 
+//        method.setFollowRedirects(true);
 
         boolean useBasicAuth = getUseBasicAuth();
         String user = null;
@@ -282,6 +286,15 @@ public class WebdavFileSystem extends FileSystemNode {
         }
 
         int val = getClient().executeMethod(method);
+        if (val >= 300 && val <= 399) {
+            String redirectLocation;
+            Header locationHeader = method.getResponseHeader("location");
+            if (locationHeader != null) {
+                redirectLocation = locationHeader.getValue();
+                method.setURI(new URI(redirectLocation));
+                val = getClient().executeMethod(method);
+            }
+        }
 
         user = null;
         passwd = null;
@@ -486,6 +499,12 @@ public class WebdavFileSystem extends FileSystemNode {
                 timeOut = "30000";
             }
             httpConnectionParams.setConnectionTimeout(Integer.valueOf(timeOut));
+            httpConnectionParams.setParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
+            httpConnectionParams.setParameter(HttpClientParams.REJECT_RELATIVE_REDIRECT, false);
+            httpConnectionParams.setParameter(HttpClientParams.MAX_REDIRECTS, 50);
+
+
+
             // httpConnectionParams.setMaxConnectionsPerHost(hostConfig,
             // MAX_HOST_CONNECTIONS);
             connectionManager.setParams(httpConnectionParams);
@@ -1041,7 +1060,7 @@ public class WebdavFileSystem extends FileSystemNode {
     }
 
     public long getLength(DavPropertySet davProperties) {
-        
+
         if (davProperties == null) {
             return 0;
         }
