@@ -45,7 +45,7 @@ public class testVFSWebDaV extends testVFS {
 
     static {
         try {
-            testLoc = new VRL("webdav://localhost:8080/lobcder/dav/TEST");
+            testLoc = new VRL("webdavssl://TEST");
         } catch (VRLSyntaxException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -73,10 +73,11 @@ public class testVFSWebDaV extends testVFS {
 
         ServerInfo info = ServerInfo.createFor(context, testLoc);
 
-        info.setUsername("RoomC3156");
-        info.setPassword("admin");
+        info.setUsername("USER");
+        info.setPassword("PASS");
 
         info.store();
+        
         return new TestSuite(testVFSWebDaV.class);
     }
 

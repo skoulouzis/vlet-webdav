@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import nl.uva.vlet.ClassLogger;
 import nl.uva.vlet.data.StringList;
@@ -97,9 +94,8 @@ public class WebdavFile extends VFile {
 
     @Override
     public boolean exists() throws VlException {
-
         ArrayList<VFSNode> result = webdavfs.propFind(getVRL(), DavConstants.PROPFIND_PROPERTY_NAMES,
-                DavConstants.DEPTH_0);
+                DavConstants.DEPTH_1, false);
         boolean exists = (result != null && !result.isEmpty());
 
         if (exists) {
@@ -141,7 +137,7 @@ public class WebdavFile extends VFile {
 //        if (_davProps != null && _davProps.getPropertyNames().length > 0) {
 //            return _davProps;
 //        }
-        _davProps = webdavfs.getProperties(getVRL());
+        _davProps = webdavfs.getProperties(getVRL(),false);
         return _davProps;
     }
 
@@ -190,12 +186,12 @@ public class WebdavFile extends VFile {
 
     @Override
     public InputStream getInputStream() throws VlException {
-        return webdavfs.getInputStream(getVRL());
+        return webdavfs.getInputStream(getVRL(), true);
     }
 
     @Override
     public OutputStream getOutputStream() throws VlException {
-        return webdavfs.getOutputStream(getVRL());
+        return webdavfs.getOutputStream(getVRL(), true);
     }
 
     @Override

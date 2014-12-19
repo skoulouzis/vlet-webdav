@@ -18,100 +18,93 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 
 /**
  * WebdavDir
- * 
+ *
  * @author S. Koulouzis
  */
-public class WebdavDir extends VDir
-{
+public class WebdavDir extends VDir {
+
     private static ClassLogger logger;
-    
-    static
-    {
+
+    static {
         logger = ClassLogger.getLogger(WebdavDir.class);
         logger.setLevelToError();
     }
-
     // === instance === 
     // 
     // ================
-    
     private DavPropertySet _davProps;
-
     private WebdavFileSystem webdavfs;
 
     /**
      * Creates a WebdavDir
-     * 
-     * @param webdavFSystem
-     *            the file system
-     * @param vrl
-     *            the vrl pointing of the resource
-     * @param davPropSet
-     *            the property set
+     *
+     * @param webdavFSystem the file system
+     * @param vrl the vrl pointing of the resource
+     * @param davPropSet the property set
      */
-    public WebdavDir(VFileSystem webdavFSystem, VRL vrl, DavPropertySet davPropSet)
-    {
+    public WebdavDir(VFileSystem webdavFSystem, VRL vrl, DavPropertySet davPropSet) {
         super(webdavFSystem, vrl);
         this._davProps = davPropSet;
         this.webdavfs = (WebdavFileSystem) webdavFSystem;
     }
 
-    protected DavPropertySet getDavProperties() throws VlException
-    {
-        if (_davProps!=null)
-            return _davProps;  
-        
-        _davProps = webdavfs.getProperties(getVRL());
-        return _davProps; 
-    }
-    
-    public DavProperty<?> getDavProperty(String name) throws VlException 
-    {
-        this._davProps=this.getDavProperties(); 
-        
-        if (_davProps==null)
-            return null; 
-          
-        DavProperty<?> prop = _davProps.get(name);
-        return prop; 
+    protected DavPropertySet getDavProperties() throws VlException {
+        if (_davProps != null) {
+            return _davProps;
+        }
+
+        _davProps = webdavfs.getProperties(getVRL(), true);
+        return _davProps;
     }
 
-    public String[] getAttributeNames()
-    {
-        String attrs[]=super.getAttributeNames();
-        if (_davProps==null)
-            return attrs; 
-                    
-        StringList atrList=new StringList(attrs);
-        
+    public DavProperty<?> getDavProperty(String name) throws VlException {
+        this._davProps = this.getDavProperties();
+
+        if (_davProps == null) {
+            return null;
+        }
+
+        DavProperty<?> prop = _davProps.get(name);
+        return prop;
+    }
+
+    public String[] getAttributeNames() {
+        String attrs[] = super.getAttributeNames();
+        if (_davProps == null) {
+            return attrs;
+        }
+
+        StringList atrList = new StringList(attrs);
+
         DavPropertyName[] propNames = null;
-        propNames=this._davProps.getPropertyNames();
-        
-        for (int i=0;i<propNames.length;i++)
+        propNames = this._davProps.getPropertyNames();
+
+        for (int i = 0; i < propNames.length; i++) {
             atrList.add(propNames[i].getName());
-        
-        return atrList.toArray(); 
+        }
+
+        return atrList.toArray();
     }
-    
-    public VAttribute getAttribute(String name) throws VlException
-    {
+
+    public VAttribute getAttribute(String name) throws VlException {
         DavProperty<?> prop = this.getDavProperty(name);
-        if (prop!=null)
-            return new VAttribute(name,""+prop.getValue());
-        
-        return super.getAttribute(name); 
+        if (prop != null) {
+            return new VAttribute(name, "" + prop.getValue());
+        }
+
+        return super.getAttribute(name);
     }
-    
+
     @Override
-    public VFSNode[] list() throws VlException
-    {        
+    public VFSNode[] list() throws VlException {
         ArrayList<VFSNode> nodes = webdavfs.propFind(getVRL(), DavConstants.PROPFIND_ALL_PROP_INCLUDE,
-                DavConstants.DEPTH_1);
+                DavConstants.DEPTH_1, true);
 
         // get rid of this node
-        if (nodes==null)
+        if (nodes == null) {
             return null;
-        
+        }
+
         nodes.remove(0);
 
         VFSNode[] nodesArray = new VFSNode[nodes.size()];
@@ -120,8 +113,7 @@ public class WebdavDir extends VDir
     }
 
     @Override
-    public boolean create(boolean ignoreExisting) throws VlException
-    {
+    public boolean create(boolean ignoreExisting) throws VlException {
         VDir dir = webdavfs.createDir(getVRL(), ignoreExisting);
 
         return (dir != null);
@@ -136,58 +128,50 @@ public class WebdavDir extends VDir
     //        
     // return file;
     // }
-
     @Override
-    public boolean exists() throws VlException
-    {
+    public boolean exists() throws VlException {
         ArrayList<VFSNode> result = webdavfs.propFind(getVRL(), DavConstants.PROPFIND_PROPERTY_NAMES,
-                DavConstants.DEPTH_0);
+                DavConstants.DEPTH_0, true);
 
         return (result != null && !result.isEmpty());
     }
 
     @Override
-    public long getModificationTime() throws VlException
-    {
-        String modstr=this.webdavfs.getModificationTimeString(this.getDavProperties()); 
-        if (modstr==null)
-            return -1; 
+    public long getModificationTime() throws VlException {
+        String modstr = this.webdavfs.getModificationTimeString(this.getDavProperties());
+        if (modstr == null) {
+            return -1;
+        }
         // convert to millis since epoch. 
         return webdavfs.createDateFromString(modstr).getTime();
     }
-    
+
     @Override
-    public boolean isReadable() throws VlException
-    {
-        return this.webdavfs.isReadable(this.getDavProperties(),false); 
+    public boolean isReadable() throws VlException {
+        return this.webdavfs.isReadable(this.getDavProperties(), false);
     }
 
     @Override
-    public boolean isWritable() throws VlException
-    {
-        return this.webdavfs.isWritable(this.getDavProperties(),false); 
+    public boolean isWritable() throws VlException {
+        return this.webdavfs.isWritable(this.getDavProperties(), false);
     }
 
     @Override
-    public VRL rename(String newNameOrPath, boolean nameIsPath) throws VlException
-    {
+    public VRL rename(String newNameOrPath, boolean nameIsPath) throws VlException {
         VRL destination = null;
-        if (nameIsPath || (newNameOrPath.startsWith("/")))
-        {
+        if (nameIsPath || (newNameOrPath.startsWith("/"))) {
             destination = getVRL().copyWithNewPath(newNameOrPath);
-        }
-        else
-        {
+        } else {
             destination = getVRL().getParent().append(newNameOrPath);
         }
 
         return webdavfs.move(getVRL(), destination, false);
     }
 
-    public long getNrOfNodes() throws VlException
-    {
+    @Override
+    public long getNrOfNodes() throws VlException {
         ArrayList<VFSNode> result = webdavfs.propFind(getVRL(), DavConstants.PROPFIND_ALL_PROP_INCLUDE,
-                DavConstants.DEPTH_1);
+                DavConstants.DEPTH_1, true);
 
         // get rid of this node
         result.remove(0);
@@ -196,9 +180,7 @@ public class WebdavDir extends VDir
     }
 
     @Override
-    public boolean delete(boolean recurse) throws VlException
-    {
+    public boolean delete(boolean recurse) throws VlException {
         return webdavfs.delete(getVRL(), recurse);
     }
-
 }
