@@ -181,6 +181,6 @@ public class WebdavDir extends VDir {
 
     @Override
     public boolean delete(boolean recurse) throws VlException {
-        return webdavfs.delete(getVRL(), recurse);
+        return webdavfs.delete(getVRL(), recurse,true);
     }
 }

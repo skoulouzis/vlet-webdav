@@ -571,7 +571,6 @@ public class testVFS extends VTestCase {
             message("***Warning: Skipping test:testCreateDeleteFileWithSpaceAndListParentDir");
             return;
         }
-        verbose(1, "testCreateDeleteFileWithSpaceAndListParentDir");
         VFile newFile = getRemoteTestDir().createFile(
                 nextFilename("test File E"));
 

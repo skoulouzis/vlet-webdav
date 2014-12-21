@@ -137,7 +137,7 @@ public class WebdavFile extends VFile {
 //        if (_davProps != null && _davProps.getPropertyNames().length > 0) {
 //            return _davProps;
 //        }
-        _davProps = webdavfs.getProperties(getVRL(),false);
+        _davProps = webdavfs.getProperties(getVRL(), false);
         return _davProps;
     }
 
@@ -186,17 +186,17 @@ public class WebdavFile extends VFile {
 
     @Override
     public InputStream getInputStream() throws VlException {
-        return webdavfs.getInputStream(getVRL(), true);
+        return webdavfs.getInputStream(getVRL());
     }
 
     @Override
     public OutputStream getOutputStream() throws VlException {
-        return webdavfs.getOutputStream(getVRL(), true);
+        return webdavfs.getOutputStream(getVRL());
     }
 
     @Override
     public boolean delete() throws VlException {
-        return webdavfs.delete(getVRL(), true);
+        return webdavfs.delete(getVRL(), true, false);
     }
 
     @Override
