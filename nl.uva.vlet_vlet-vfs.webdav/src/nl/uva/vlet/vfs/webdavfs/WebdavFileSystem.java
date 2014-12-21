@@ -146,8 +146,7 @@ public class WebdavFileSystem extends FileSystemNode {
         if (path.endsWith("~")) {
 //            newVRL = vrl.copyWithNewPath("/");
             newVRL = info.getRootPath();
-        }
-        if (path.equals("/") && !info.getRootPath().equals(vrl)) {
+        } else if (path.equals("/") && !info.getRootPath().equals(vrl)) {
             newVRL = info.getRootPath();
         }
 
