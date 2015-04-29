@@ -573,7 +573,7 @@ public class WebdavFileSystem extends FileSystemNode {
 
             client = new HttpClient(connectionManager);
 
-            client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
+            getClient().getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
 
             // StringHolder secret = new StringHolder();
             // getContext().getUI().askAuthentication("Password for " +
@@ -801,7 +801,9 @@ public class WebdavFileSystem extends FileSystemNode {
             DavPropertyNameSet nameSet = new DavPropertyNameSet();
             nameSet.add(DavPropertyName.DISPLAYNAME);
             PropFindMethod propFind = new PropFindMethod(vrlToUrl(vrl, false).toString(), nameSet, DavConstants.DEPTH_INFINITY);
-            int status = client.executeMethod(propFind);
+//            System.err.println("propFind: " + propFind + " vrlToUrl(vrl, false).toString(): " + vrlToUrl(vrl, false).toString() + " nameSet: " + nameSet + "  DavConstants.DEPTH_INFINITY: " + DavConstants.DEPTH_INFINITY);
+            int status = getClient().executeMethod(propFind);
+//            System.err.println("status: " + status);
 
 
             ArrayList<VFSNode> nodes = propFind(vrl, DavConstants.PROPFIND_ALL_PROP, DavConstants.DEPTH_1, false);
