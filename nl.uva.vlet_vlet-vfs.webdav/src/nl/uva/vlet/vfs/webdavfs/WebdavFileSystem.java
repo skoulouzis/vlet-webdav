@@ -530,7 +530,11 @@ public class WebdavFileSystem extends FileSystemNode {
 
     @Override
     public boolean isConnected() {
-        return connected;
+        if (this.client == null || !connected) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public String getUsername() {
@@ -573,7 +577,7 @@ public class WebdavFileSystem extends FileSystemNode {
 
             client = new HttpClient(connectionManager);
 
-            getClient().getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
+            client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler());
 
             // StringHolder secret = new StringHolder();
             // getContext().getUI().askAuthentication("Password for " +
@@ -1171,14 +1175,12 @@ public class WebdavFileSystem extends FileSystemNode {
         return true;
     }
 
-//    protected HttpClient getHttpClient() {
-//        return this.getClient();
-//    }
     /**
      * @return the client
      */
     private HttpClient getClient() throws VlException {
         if (client == null || !isConnected()) {
+            disconnect();
             connect();
         }
         return client;
@@ -1263,7 +1265,7 @@ public class WebdavFileSystem extends FileSystemNode {
 //        propertyNameSet.add(DavPropertyName.SUPPORTEDLOCK);
 //
 //        PropFindMethod propFind = new PropFindMethod(url.toString(), propertyNameSet, DavConstants.DEPTH_INFINITY);
-//        int status = client.executeMethod(propFind);
+//        int status = getClient.executeMethod(propFind);
 //
 //        System.err.println("status: "+status);
 //        return null;
