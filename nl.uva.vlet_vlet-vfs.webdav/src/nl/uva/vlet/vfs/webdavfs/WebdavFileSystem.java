@@ -114,18 +114,19 @@ public class WebdavFileSystem extends FileSystemNode {
     public WebdavFileSystem(VRSContext context, ServerInfo info, VRL location) {
 
         super(context, info);
-        if (location.getScheme().endsWith("ssl")) {
-            useSSL = true;
-        }
         int port = getPort();
         if (port == -1) {
             port = 443;
         }
+        String sceme = location.getScheme();
+        if (sceme.endsWith("ssl")) {
+            useSSL = true;
+            ProtocolSocketFactory socketFactory =
+                    new EasySSLProtocolSocketFactory();
+            Protocol https = new Protocol("https", socketFactory, port);
+            Protocol.registerProtocol("https", https);
+        }
 
-        ProtocolSocketFactory socketFactory =
-                new EasySSLProtocolSocketFactory();
-        Protocol https = new Protocol("https", socketFactory, port);
-        Protocol.registerProtocol("https", https);
         setRoot(location, info);
     }
 
