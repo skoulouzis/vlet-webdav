@@ -799,7 +799,7 @@ public class WebdavFileSystem extends FileSystemNode {
         try {
             int code = executeMethod(put);
             if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
-                throw new ResourceCreationFailedException("File " + vrl + " not created");
+                throw new ResourceCreationFailedException("File " + vrl + " not created. Code returned: "+code);
             }
             put.releaseConnection();
 
