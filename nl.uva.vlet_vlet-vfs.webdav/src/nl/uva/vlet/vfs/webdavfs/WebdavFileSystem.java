@@ -51,7 +51,6 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.contrib.ssl.EasySSLProtocolSocketFactory;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
@@ -78,6 +77,7 @@ import org.apache.jackrabbit.webdav.property.DavPropertySet;
 import org.apache.xerces.dom.DeferredElementNSImpl;
 
 import sun.misc.BASE64Encoder;
+import ucar.nc2.util.net.EasySSLProtocolSocketFactory;
 
 /**
  * WebdavFileSystem
@@ -121,10 +121,17 @@ public class WebdavFileSystem extends FileSystemNode {
         String sceme = location.getScheme();
         if (sceme.endsWith("ssl")) {
             useSSL = true;
-            ProtocolSocketFactory socketFactory =
-                    new EasySSLProtocolSocketFactory();
-            Protocol https = new Protocol("https", socketFactory, port);
-            Protocol.registerProtocol("https", https);
+
+
+            org.apache.commons.httpclient.protocol.Protocol.registerProtocol("https",
+                    new Protocol("ss-https",
+                    (ProtocolSocketFactory) new EasySSLProtocolSocketFactory(), 443));
+
+
+//            ProtocolSocketFactory socketFactory =
+//                    new EasySSLProtocolSocketFactory();
+//            Protocol https = new Protocol("https", socketFactory, port);
+//            Protocol.registerProtocol("https", https);
         }
 
         setRoot(location, info);
@@ -799,7 +806,7 @@ public class WebdavFileSystem extends FileSystemNode {
         try {
             int code = executeMethod(put);
             if (code != HttpStatus.SC_OK && code != HttpStatus.SC_CREATED) {
-                throw new ResourceCreationFailedException("File " + vrl + " not created. Code returned: "+code);
+                throw new ResourceCreationFailedException("File " + vrl + " not created. Code returned: " + code);
             }
             put.releaseConnection();
 
