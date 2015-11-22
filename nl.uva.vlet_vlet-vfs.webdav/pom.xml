@@ -70,15 +70,13 @@
             <artifactId>vlet-vrs.core</artifactId>
             <version>1.5.0-dev-1</version>
         </dependency>
-
         
         <dependency>
             <groupId>nl.uva.vlet</groupId>
             <artifactId>vlet-vfs.gftp</artifactId>
             <version>1.5.0-dev-1</version>
             <scope>runtime</scope>
-        </dependency>       
-        
+        </dependency> 
         
         <dependency>
             <groupId>com.claymoresystems</groupId>
@@ -87,22 +85,20 @@
             <scope>runtime</scope>
         </dependency>
         
-
         <dependency>
             <groupId>cryptix</groupId>
             <artifactId>cryptix-asn1</artifactId>
             <version>1.0</version>
             <scope>runtime</scope>
         </dependency>
-                
+
         <dependency>
             <groupId>cryptix</groupId>
             <artifactId>cryptix32</artifactId>
             <version>3.2.0</version>
             <scope>runtime</scope>
         </dependency>
-                
-                
+        
         <dependency>
             <groupId>cryptix</groupId>
             <artifactId>cryptix</artifactId>
@@ -116,7 +112,6 @@
             <version>1.5.0-dev-1</version>
             <scope>runtime</scope>
         </dependency>  
-        
         
         <dependency>
             <groupId>org.globus</groupId>
@@ -132,23 +127,6 @@
             <scope>runtime</scope>
         </dependency>
         
-        
-        <dependency>
-            <groupId>bouncycastle</groupId>
-            <artifactId>jce-jdk13</artifactId>
-            <version>131</version>
-            <scope>runtime</scope>
-        </dependency>
-        
-        
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15</artifactId>
-            <version>1.43</version>
-            <scope>runtime</scope>
-        </dependency>
-            
-                
         <dependency>
             <groupId>nl.uva.vlet</groupId>
             <artifactId>vlet-vfs.srm</artifactId>
@@ -176,14 +154,14 @@
             <version>2.1.0</version>
         </dependency>
         
-        
+                
         <dependency>
             <groupId>xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>2.11.0</version>
         </dependency>
         
-        
+                
         <dependency>
             <groupId>apache-slide</groupId>
             <artifactId>jakarta-slide-webdavlib</artifactId>
@@ -191,27 +169,18 @@
         </dependency>
         
         
-        <dependency>
-            <groupId>org.kuali.rice</groupId>
-            <artifactId>rice-ksb-client-impl</artifactId>
-            <version>2.1.0-M2</version>
-        </dependency>
-       
-
+        
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
-        
-        
-        <!--        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
-        </dependency>-->
-        
-        
+        <dependency>
+            <groupId>edu.ucar</groupId>
+            <artifactId>netcdf</artifactId>
+            <version>4.2-min</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
 
